@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Leaf, UserPlus, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import "../css/login.css";
+import "../css/Login.css";
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
