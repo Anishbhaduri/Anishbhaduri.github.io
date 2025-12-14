@@ -7,13 +7,13 @@ import rainVideo from "../assets/video/rain.mp4";
 import cloudsVideo from "../assets/video/cloud.mp4";
 
 /* 🌾 Crop Images */
-import riceImg from "../assets/images/crops/rice.jpg";
-import maizeImg from "../assets/images/crops/maize.jpg";
-import cottonImg from "../assets/images/crops/cotton.jpg";
-import chickpeaImg from "../assets/images/crops/chickpea.jpg";
-import lentilImg from "../assets/images/crops/lentil.jpg";
-import watermelonImg from "../assets/images/crops/watermelon.jpg";
-import coconutImg from "../assets/images/crops/coconut.jpg";
+import riceImg from "../assets/images/Crops/rice.jpg";
+import maizeImg from "../assets/images/Crops/maize.jpg";
+import cottonImg from "../assets/images/Crops/cotton.jpg";
+import chickpeaImg from "../assets/images/Crops/chickpea.jpg";
+import lentilImg from "../assets/images/Crops/lentil.jpg";
+import watermelonImg from "../assets/images/Crops/watermelon.jpg";
+import coconutImg from "../assets/images/Crops/coconut.jpg";
 
 const cropImages = {
   Rice: riceImg,
