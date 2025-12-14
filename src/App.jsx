@@ -42,7 +42,7 @@ function App() {
 
         {/* Redirect any unknown routes to login */}
          {/* <Route path="*" element={<Navigate to="/login" />} /> */}
-         
+
       </Routes>
     </Router>
   );
