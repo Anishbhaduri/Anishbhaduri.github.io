@@ -66,8 +66,8 @@ function Home() {
     const handleResize = () => {
       if (window.innerWidth > 880 && menuOpen) setMenuOpen(false);
     };
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [menuOpen]);
 
   const handleMenuClick = () => setMenuOpen((prev) => !prev);
@@ -104,176 +104,261 @@ function Home() {
 
   return (
     <div>
-    <button
-    className={`scroll-to-home-btn ${showScrollBtn ? "show" : ""}`}
-    onClick={() =>
-      document.getElementById("home").scrollIntoView({ behavior: "smooth" })
-    }
-    >
-    ▲
-    </button>
+      <button
+        className={`scroll-to-home-btn ${showScrollBtn ? "show" : ""}`}
+        onClick={() =>
+          document.getElementById("home").scrollIntoView({ behavior: "smooth" })
+        }
+      >
+        ▲
+      </button>
 
-    {/* Header */}
-    <header className="header">
-    <div className="logo">
-    <h1>🌿 Plant Pulse</h1>
-    </div>
+      {/* Header */}
+      <header className="header">
+        <div className="logo">
+          <h1>🌿 Plant Pulse</h1>
+        </div>
 
-    <nav className={`navbar${menuOpen ? " active" : ""}`}>
-    <a href="#home" className="nav-link">Home</a>
-    <a href="#features" className="nav-link">Features</a>
-    <a href="#about" className="nav-link">About</a>
-    <a href="#contact" className="nav-link">Contact</a>
-    <Link to="#upload" className="btn nav-link">Model</Link>
-    </nav>
+        <nav className={`navbar${menuOpen ? " active" : ""}`}>
+          <a href="#home" className="nav-link">
+            Home
+          </a>
+          <a href="#features" className="nav-link">
+            Features
+          </a>
+          <a href="#about" className="nav-link">
+            About
+          </a>
+          <a href="#contact" className="nav-link">
+            Contact
+          </a>
+          <Link to="#upload" className="btn nav-link">
+            Model
+          </Link>
+        </nav>
 
-    {/* ✅ ADDED Logout Button */}
-   <button
-  onClick={handleLogout}
-  style={{
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    padding: "6px",
-    display: "flex",
-    alignItems: "center",
-  }}
-  title="Logout"
->
-  <img
-    src="https://www.svgrepo.com/show/13695/logout.svg"
-    alt="Logout"
-    style={{
-      width: "24px",
-      height: "24px",
-      filter: "grayscale(100%) brightness(0)",
-    }}
-  />
-</button>
+        {/* ✅ ADDED Logout Button */}
+        <button
+          onClick={handleLogout}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: "6px",
+            display: "flex",
+            alignItems: "center",
+          }}
+          title="Logout"
+        >
+          <img
+            src="https://www.svgrepo.com/show/13695/logout.svg"
+            alt="Logout"
+            style={{
+              width: "24px",
+              height: "24px",
+              filter: "grayscale(100%) brightness(0)",
+            }}
+          />
+        </button>
 
+        <button
+          id="menu-btn"
+          className={`menu-icon ${menuOpen ? "open" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="bar bar1" />
+          <span className="bar bar2" />
+          <span className="bar bar3" />
+        </button>
+      </header>
 
-    <button
-    id="menu-btn"
-    className={`menu-icon ${menuOpen ? "open" : ""}`}
-    onClick={handleMenuClick}
-    >
-    <span className="bar bar1" />
-    <span className="bar bar2" />
-    <span className="bar bar3" />
-    </button>
-    </header>
+      {/* Hero Section */}
+      <section className="home" id="home">
+        <video className="video" src={home} autoPlay loop muted />
+        <motion.div
+          className="content"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+        >
+          <motion.h1>YOUR SMART FARMING ASSISTANT</motion.h1>
+          <motion.p>Smart Crops, Smart Choices with Plant Pulse!</motion.p>
+          <Link to="/guidepage" className="home-btn">
+            Smart Farming Guide
+          </Link>
+        </motion.div>
+      </section>
 
-    {/* Hero Section */}
-    <section className="home" id="home">
-    <video className="video" src={home} autoPlay loop muted />
-    <motion.div className="content" initial="hidden" animate="visible" variants={fadeUp}>
-    <motion.h1>YOUR SMART FARMING ASSISTANT</motion.h1>
-    <motion.p>Smart Crops, Smart Choices with Plant Pulse!</motion.p>
-    <Link to="/guidepage" className="home-btn">
-    Smart Farming Guide
-    </Link>
-    </motion.div>
-    </section>
+      {/* Features Section */}
+      <section className="features" id="features" aria-label="Features">
+        <motion.div
+          className="heading"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          transition={{ duration: 1 }}
+        >
+          <h1 align="center" style={{ fontSize: "2rem", fontWeight: "bold" }}>
+            Features
+          </h1>
+          <p>
+            PlantPulse empowers farmers with AI-driven crop recommendations,
+            disease detection, and climate insights to make smarter, sustainable
+            farming decisions.
+          </p>
+        </motion.div>
 
-    {/* Features Section */}
-        <section className="features" id="features" aria-label="Features">
-          <motion.div
-            className="heading"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 1 }}
-          >
-            <h1 align="center" style={{ fontSize: "2rem", fontWeight: "bold" }}>Features</h1>
-            <p>
-          PlantPulse empowers farmers with AI-driven crop recommendations, disease detection,
-          and climate insights to make smarter, sustainable farming decisions.
+        <div
+          className="button-container0"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <Link to="/Weatherforcast" className="buttonn active">
+            Weather Forcasting
+          </Link>
+          <Link to="/upload" className="buttonn">
+            Identify Diseases
+          </Link>
+          <Link to="/guidepage" className="buttonn">
+            Smart Farming Guidance
+          </Link>
+        </div>
+
+        <div
+          className="row"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            maxWidth: "1200px",
+            margin: "0 auto",
+          }}
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              className={`feature-row ${index % 2 !== 0 ? "reverse" : ""}`}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+            >
+              <div className="image">
+                <motion.img
+                  src={feature.img}
+                  alt={feature.title}
+                  className="rounded-corner-image parallax-img"
+                  style={{ y: yParallax }}
+                  whileHover={{ scale: 1.05 }}
+                />
+              </div>
+              <div className="content">
+                <h1>{feature.title}</h1>
+                <p>{feature.desc}</p>
+                <Link to="#" className="all-btn">
+                  More Info
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="about" id="about" aria-label="About">
+        <div className="responsive-container-block outer-container">
+          <div className="responsive-container-block inner-container">
+            <h1 className="text-blk section-head-text">Meet Our Team</h1>
+            <p className="text-blk section-subhead-text">
+              A passionate team of innovators blending agriculture and
+              technology to help
             </p>
-          </motion.div>
-
-          <div className="button-container0" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/Weatherforcast" className="buttonn active">Weather Forcasting</Link>
-            <Link to="/upload" className="buttonn">Identify Diseases</Link>
-            <Link to="/guidepage" className="buttonn">Smart Farming Guidance</Link>
-          </div>
-
-          <div className="row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '1200px', margin: '0 auto' }}>
-            {features.map((feature, index) => (
-          <motion.div
-            key={feature.title}
-            className={`feature-row ${index % 2 !== 0 ? "reverse" : ""}`}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 0.8, delay: index * 0.1 }}
-          >
-            <div className="image">
-              <motion.img
-            src={feature.img}
-            alt={feature.title}
-            className="rounded-corner-image parallax-img"
-            style={{ y: yParallax }}
-            whileHover={{ scale: 1.05 }}
-              />
-            </div>
-            <div className="content">
-              <h1>{feature.title}</h1>
-              <p>{feature.desc}</p>
-              <Link to="#" className="all-btn">More Info</Link>
-            </div>
-          </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section className="about" id="about" aria-label="About">
-          <div className="responsive-container-block outer-container">
-            <div className="responsive-container-block inner-container">
-              <h1 className="text-blk section-head-text">Meet Our Team</h1>
-              <p className="text-blk section-subhead-text">
-                A passionate team of innovators blending agriculture and technology to help
-              </p>
-              <div className="responsive-container-block team-list">
-                {[
-                  { name: "Anish Bhaduri", role: "Web Developer", img: anishImg, linkedin: "https://linkedin.com/in/anish-bhaduri", email: "anish@gmail.com" },
-                  { name: "Priantu Das", role: "ML Engineer", img: priantuImg, linkedin: "https://linkedin.com/in/priantu-das", email: "priantu@gmail.com" },
-                  { name: "Nital Kumari", role: "UX/UI Designer", img: nitalImg, linkedin: "https://linkedin.com/in/nital-kumari", email: "nital@gmail.com" },
-                  { name: "Biswajyoti Ray", role: "ML Engineer", img: biswajitImg, linkedin: "https://linkedin.com/in/biswajyoti-ray", email: "biswajyoti@gmail.com" },
-                  { name: "Aritra Kar", role: "", img: aritraImg, linkedin: "https://linkedin.com/in/aritra-kar", email: "aritra@gmail.com" },
-                ].map((member) => (
-                  <div key={member.name} className="responsive-cell-block team-card-container">
-                    <div className="team-card">
-                      <div className="img-wrapper">
-                        <img className="team-img" src={member.img} alt={member.name} />
-                      </div>
-                      <p className="text-blk name">{member.name}</p>
-                      <p className="text-blk position">{member.role}</p>
-                      <div className="social-media-links">
-                        <a href={member.linkedin} target="_blank" rel="noreferrer">
-                          <img
-                            src="https://www.svgrepo.com/show/521725/linkedin.svg"
-                            alt="LinkedIn"
-                          />
-                        </a>
-                        <a href={`mailto:${member.email}`}>
-                          <img
-                            src="https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/gray-mail.svg"
-                            alt="Email"
-                          />
-                        </a>
-                      </div>
+            <div className="responsive-container-block team-list">
+              {[
+                {
+                  name: "Anish Bhaduri",
+                  role: "Web Developer",
+                  img: anishImg,
+                  linkedin: "https://linkedin.com/in/anish-bhaduri",
+                  email: "anish@gmail.com",
+                },
+                {
+                  name: "Priantu Das",
+                  role: "ML Engineer",
+                  img: priantuImg,
+                  linkedin: "https://linkedin.com/in/priantu-das",
+                  email: "priantu@gmail.com",
+                },
+                {
+                  name: "Nital Kumari",
+                  role: "UX/UI Designer",
+                  img: nitalImg,
+                  linkedin: "https://linkedin.com/in/nital-kumari",
+                  email: "nital@gmail.com",
+                },
+                {
+                  name: "Biswajyoti Ray",
+                  role: "ML Engineer",
+                  img: biswajitImg,
+                  linkedin: "https://linkedin.com/in/biswajyoti-ray",
+                  email: "biswajyoti@gmail.com",
+                },
+                {
+                  name: "Aritra Kar",
+                  role: "",
+                  img: aritraImg,
+                  linkedin: "https://linkedin.com/in/aritra-kar",
+                  email: "aritra@gmail.com",
+                },
+              ].map((member) => (
+                <div
+                  key={member.name}
+                  className="responsive-cell-block team-card-container"
+                >
+                  <div className="team-card">
+                    <div className="img-wrapper">
+                      <img
+                        className="team-img"
+                        src={member.img}
+                        alt={member.name}
+                      />
+                    </div>
+                    <p className="text-blk name">{member.name}</p>
+                    <p className="text-blk position">{member.role}</p>
+                    <div className="social-media-links">
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <img
+                          src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23999999' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'><rect x='1.5' y='1.5' width='13' height='13' rx='1.5'/><line x1='5' y1='6.5' x2='5' y2='11'/><circle cx='5' cy='4.5' r='0.4'/><path d='M8 11V7.8a1.6 1.6 0 0 1 3.2 0V11'/></svg>"
+                          style={{ width: "8px", height: "8px" }}
+                          alt="LinkedIn"
+                        />
+                      </a>
+                      <a href={`mailto:${member.email}`}>
+                        <img
+                          src="https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/gray-mail.svg"
+                          alt="Email"
+                        />
+                      </a>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}}
+      {/* Footer */}
       <footer className="footer" id="footer" aria-label="Footer">
         <div className="box-container">
           <div className="box">
