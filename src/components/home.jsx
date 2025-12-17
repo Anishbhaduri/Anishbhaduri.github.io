@@ -252,36 +252,12 @@ function Home() {
                       <p className="text-blk name">{member.name}</p>
                       <p className="text-blk position">{member.role}</p>
                       <div className="social-media-links">
-                        <a
-  href={member.linkedin}
-  target="_blank"
-  rel="noreferrer"
-  style={{
-    display: "inline-flex",
-    width: "30px",
-    height: "30px",
-    borderRadius: "50%",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "transparent",
-    border: "1px solid rgba(0,0,0,0.08)",
-    overflow: "hidden",
-    padding: 0,
-  }}
-  title="LinkedIn"
->
-  <img
-    src="https://www.svgrepo.com/show/475661/linkedin-color.svg"
-    alt="LinkedIn"
-    style={{
-      width: "12px",             // change to 10px / 8px for even smaller
-      height: "12px",
-      display: "block",
-      filter: "grayscale(100%) brightness(0.4)", // makes the colored svg appear gray/black
-    }}
-  />
-</a>
-
+                        <a href={member.linkedin} target="_blank" rel="noreferrer">
+                          <img
+                            src="https://www.svgrepo.com/show/521725/linkedin.svg"
+                            alt="LinkedIn"
+                          />
+                        </a>
                         <a href={`mailto:${member.email}`}>
                           <img
                             src="https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/gray-mail.svg"
