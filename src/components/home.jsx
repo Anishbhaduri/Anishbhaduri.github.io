@@ -82,22 +82,24 @@ function Home() {
   const features = [
     {
       title: "Plant Disease Identification",
-      desc: `Keeping crops healthy is the key to a successful harvest. Our AI-powered Plant Disease Identification system helps farmers detect crop problems early — just by uploading a photo of the affected plant.`,
+      desc: `Keeping crops healthy is the key to a successful harvest. Our AI-powered Plant Disease Identification system helps farmers detect crop problems early — just by uploading a photo of the affected plant. Within seconds, you’ll receive accurate disease detection, causes, and practical treatment recommendations.
+By identifying issues before they spread, you can reduce crop loss, improve yield quality, and save time and resources. Whether it’s pests, nutrient deficiencies, or fungal infections, our intelligent system ensures your fields stay green and productive.
+Empowering farmers with technology that works in the field, not just in theory — because every healthy plant matters.`,
       img: plant_disease,
     },
     {
       title: "Smart Farming, Simple Guidance",
-      desc: "Discover how technology can make farming easier.",
+      desc: "Discover how technology can make farming easier. Our smart plant disease identification tool helps you detect problems early, protect your crops, and improve yield — all with simple, easy-to-follow guidance.",
       img: farming3,
     },
     {
       title: "Innovations for Modern Farms",
-      desc: "Farming today is more than hard work — it’s about working smart.",
+      desc: "Farming today is more than hard work — it’s about working smart. Our modern innovations bring the power of technology to your fingertips, helping you identify plant diseases, monitor field conditions, and protect your crops with ease. By combining traditional farming knowledge with advanced AI tools, we’re making it simple for farmers to grow healthier crops and achieve better harvests season after season.",
       img: Innovative,
     },
     {
       title: "User-Friendly Interface",
-      desc: "Our platform is designed with farmers in mind.",
+      desc: "Our platform is designed with farmers in mind. With an easy-to-use interface, you can quickly upload plant images, view instant disease reports, and access solutions — all in just a few taps. No complex tools or technical skills needed — just clear, simple guidance to help you protect your crops.",
       img: Friendly,
     },
   ];
