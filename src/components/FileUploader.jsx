@@ -52,58 +52,62 @@ const FileUploader = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSubmit = async () => {
-    setErrorMsg("");
-    if (!file) {
-      setErrorMsg("Please upload a leaf image first.");
-      return;
+ const handleSubmit = async () => {
+  setErrorMsg("");
+
+  if (!file) {
+    setErrorMsg("Please upload a leaf image first.");
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    setErrorMsg("Please upload an image file (jpg / png).");
+    return;
+  }
+
+  setLoading(true);
+  setDisease("Detecting...");
+
+  try {
+    // 1️⃣ Create form data
+    const formData = new FormData();
+    formData.append("file", file); // ⚠️ backend expects "file"
+
+    // 2️⃣ Call ML API
+    const res = await fetch("http://16.171.113.200:3001/predict", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Server error: ${res.status}`);
     }
 
-    if (!file.type.startsWith("image/")) {
-      setErrorMsg("Please upload an image file (jpg / png).");
-      return;
-    }
+    // 3️⃣ Read ML response
+    const data = await res.json();
 
-    setLoading(true);
-    setDisease("Detecting...");
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const apiPath = import.meta.env.VITE_REACT_APP_BACKEND_LINK;
-      if (!apiPath) {
-        throw new Error(
-          "Backend URL not set. Add VITE_REACT_APP_BACKEND_LINK to your .env"
-        );
+    /*
+      Expected response:
+      {
+        class_name: "Apple___Apple_scab",
+        confidence: 7
       }
+    */
 
-      const res = await fetch(`${apiPath.replace(/\/$/, "")}/predict`, {
-        method: "POST",
-        body: formData,
-      });
+    const diseaseName = data.class_name || "Unknown Disease";
+    const confidence = data.confidence;
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => null);
-        throw new Error(
-          `Server error ${res.status}${text ? ` — ${text}` : ""}`
-        );
-      }
+    // 4️⃣ Update UI
+    setDisease(`${diseaseName} (Confidence: ${confidence}%)`);
+  } catch (error) {
+    console.error("ML Prediction Error:", error);
+    setDisease("Error");
+    setErrorMsg("Unable to analyze image. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const data = await res.json();
-      const found = data?.disease ?? data?.result ?? "Unknown";
-      setDisease(found);
-    } catch (err) {
-      console.error("Upload error:", err);
-      setDisease("Error");
-      setErrorMsg(
-        err?.message ||
-          "Upload failed. Check console and backend (CORS / URL / server)."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoHome = () => {
     window.location.href = "/";
