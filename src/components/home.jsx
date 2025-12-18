@@ -315,7 +315,7 @@ Empowering farmers with technology that works in the field, not just in theory â
                 {
                   name: "Aritra Kar",
                   role: "Supporter",
-                  img: weather ,
+                  // img: weather ,
                   linkedin: "https://linkedin.com/in/aritra-kar",
                   email: "aritra@gmail.com",
                 },
