@@ -312,13 +312,13 @@ Empowering farmers with technology that works in the field, not just in theory â
                   linkedin: "https://linkedin.com/in/biswajyoti-ray",
                   email: "biswajyoti@gmail.com",
                 },
-                {
-                  name: "Aritra Kar",
-                  role: "Supporter",
-                  // img: weather ,
-                  linkedin: "https://linkedin.com/in/aritra-kar",
-                  email: "aritra@gmail.com",
-                },
+                // {
+                //   name: "Aritra Kar",
+                //   role: "Supporter",
+                //   // img: weather ,
+                //   linkedin: "https://linkedin.com/in/aritra-kar",
+                //   email: "aritra@gmail.com",
+                // },
               ].map((member) => (
                 <div
                   key={member.name}
