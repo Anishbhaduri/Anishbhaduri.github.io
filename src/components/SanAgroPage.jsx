@@ -118,7 +118,7 @@ export default function SanAgroPage() {
           <button className="icon-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <Menu />
           </button>
-          <h1><Leaf />Dashboard</h1>
+          <h1><Leaf /> Dashboard </h1>
         </div>
 
         <div className="header-actions">
