@@ -74,7 +74,7 @@ const FileUploader = () => {
     formData.append("file", file); // ⚠️ backend expects "file"
 
     // 2️⃣ Call ML API
-    const res = await fetch("http://16.171.113.200:3001/predict", {
+    const res = await fetch("https://16.171.113.200:3001/predict", {
       method: "POST",
       body: formData,
     });
