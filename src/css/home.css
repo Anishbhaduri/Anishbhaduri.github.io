@@ -378,7 +378,7 @@ a { text-decoration: none; }
 
 
 .feature-row .image img {
-  width: 100%;
+  width: auto;
   max-width: 420px;        /* ⬅ THIS makes image smaller */
   height: auto;
   border-radius: 18px;
