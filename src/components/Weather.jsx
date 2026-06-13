@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Weather.css";
 
@@ -23,6 +23,80 @@ const cropImages = {
   Lentil: lentilImg,
   Watermelon: watermelonImg,
   Coconut: coconutImg,
+};
+
+/* 📋 Detailed Crop Cultivation Playbook Database */
+const CROP_DETAILS = {
+  Rice: {
+    description: "Rice is the primary staple food crop in tropical regions. It is highly water-intensive and grows in clayey flooded fields.",
+    temperature: "22°C - 32°C (Warm & Humid)",
+    water: "Very High (150-300 cm or standing water)",
+    soil: "Clayey or heavy loam (retains water)",
+    sowing: "June - July (Monsoon onset)",
+    harvesting: "November - December (Post-monsoon)",
+    nutrients: "NPK (Nitrogen-heavy) & trace Zinc",
+    tips: "Maintain standing water during vegetative stages. Drain field 2 weeks before harvesting."
+  },
+  Maize: {
+    description: "Maize (Corn) is a versatile grain grown across varied climates. It requires well-drained fertile land and adequate sunshine.",
+    temperature: "21°C - 27°C",
+    water: "Moderate (50-100 cm rainfall)",
+    soil: "Well-drained alluvial or red loam soils",
+    sowing: "June - July (Kharif) or Oct - Nov (Rabi)",
+    harvesting: "September - October or Feb - March",
+    nutrients: "High Nitrogen, Phosphorus, Potassium & Zinc",
+    tips: "Highly sensitive to waterlogging. Ensure excellent field drainage to prevent root damage."
+  },
+  Cotton: {
+    description: "Cotton is a key industrial cash crop. It grows best in semi-arid regions and needs dry weather during harvest to protect the fiber.",
+    temperature: "21°C - 30°C",
+    water: "Low to Moderate (50-80 cm, drip-preferred)",
+    soil: "Deep black clay soil (retains moisture)",
+    sowing: "May - June (Kharif pre-monsoon)",
+    harvesting: "October - December",
+    nutrients: "Balanced NPK and trace Boron",
+    tips: "Needs clear sunny days during boll-bursting stage to prevent staining and damage to cotton lint."
+  },
+  Chickpea: {
+    description: "Chickpea (Gram) is an important winter pulse crop. It is highly drought-tolerant and increases soil nitrogen.",
+    temperature: "15°C - 25°C (Cool climate)",
+    water: "Low (requires light pre-sowing moisture)",
+    soil: "Well-drained clayey or sandy loam alluvial soils",
+    sowing: "October - November (Rabi season)",
+    harvesting: "February - April",
+    nutrients: "Phosphorus, sulfur & nitrogen-fixing inoculants",
+    tips: "Avoid over-irrigation. Excessive soil moisture triggers root rot and reduces seed development."
+  },
+  Lentil: {
+    description: "Lentil is a highly nutritious winter legume. It requires minimal water and thrives in drylands.",
+    temperature: "15°C - 20°C",
+    water: "Low (10-25 cm water requirements)",
+    soil: "Light loam or deep sandy-loam red soils",
+    sowing: "October - November (Rabi season)",
+    harvesting: "March - April",
+    nutrients: "Phosphorus and trace sulfur",
+    tips: "Prepare a fine seedbed. Plant at shallow depths (3-4 cm) for quick and uniform seedling emergence."
+  },
+  Watermelon: {
+    description: "Watermelon is a sweet, water-rich summer fruit requiring dry heat and high light levels to sweeten the flesh.",
+    temperature: "24°C - 35°C (Frost-sensitive)",
+    water: "Low to Moderate (drip irrigation is preferred)",
+    soil: "Well-aerated sandy loam soils that heat up fast",
+    sowing: "February - March (Zaid / Summer season)",
+    harvesting: "May - June",
+    nutrients: "Potassium, organic manure & phosphorus",
+    tips: "Reduce watering as the fruit reaches maturity to boost sweetness and prevent fruit cracking."
+  },
+  Coconut: {
+    description: "Coconut palm is a perennial coastal crop. It is salt-tolerant and requires high ambient humidity to thrive.",
+    temperature: "22°C - 32°C (Humid tropical climate)",
+    water: "High (150-250 cm evenly distributed)",
+    soil: "Coastal sand, saline soils, or well-drained laterites",
+    sowing: "June (Monsoon onset)",
+    harvesting: "Year-round (every 45-60 days)",
+    nutrients: "Potassium-rich fertilizers & sodium chloride",
+    tips: "Maintain a spacing of 7.5 meters. Mulch palm bases with coir dust to conserve soil moisture."
+  }
 };
 
 /* 🗺️ State Capitals (for state search) */
@@ -55,8 +129,40 @@ const Weather = () => {
   const [videoBg, setVideoBg] = useState(sunnyVideo);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [coords, setCoords] = useState(null);
+  const [selectedCrop, setSelectedCrop] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [leafletLoaded, setLeafletLoaded] = useState(!!window.L);
+
+  // Poll for Leaflet library load from index.html CDN to avoid race conditions
+  useEffect(() => {
+    if (window.L) return;
+    const interval = setInterval(() => {
+      if (window.L) {
+        setLeafletLoaded(true);
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const navigate = useNavigate();
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const videoRef = useRef(null);
+
+  // Force reload and play video on source changes (ensures cross-browser auto-play updates)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.warn("Playback prevented by browser autoplay policy:", error);
+        });
+      }
+    }
+  }, [videoBg]);
 
   /* 🎥 Background */
   const updateBackground = (clouds, rain) => {
@@ -68,6 +174,7 @@ const Weather = () => {
   /* 🌦 Weather fetch (REST API only) */
   const fetchWeather = async (lat, lon) => {
     setLoading(true);
+    setCoords({ lat, lon });
     try {
       const res = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&temperature_unit=celsius&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,cloud_cover`
@@ -98,13 +205,85 @@ const Weather = () => {
     }
   };
 
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   /* 📍 Auto detect location */
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
-      (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => setErrorMsg("Location access denied")
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Bounding box filter for India regions
+        if (latitude >= 6 && latitude <= 38 && longitude >= 68 && longitude <= 98) {
+          fetchWeather(latitude, longitude);
+        } else {
+          setErrorMsg("Location outside India detected. Centered on New Delhi.");
+          fetchWeather(28.6139, 77.2090);
+        }
+      },
+      () => {
+        setErrorMsg("Location access denied. Centered on New Delhi.");
+        fetchWeather(28.6139, 77.2090); // Default fallback coordinates (New Delhi)
+      }
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* 🗺️ Map initialization via callback ref (avoids DOM timing races) */
+  const mapContainerRef = useCallback(
+    (node) => {
+      // node is null when the element unmounts
+      if (!node) {
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
+        return;
+      }
+
+      if (!coords || !window.L) return;
+      const { lat, lon } = coords;
+
+      // Destroy stale map if it exists (e.g. after search update)
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+
+      const map = window.L.map(node, {
+        scrollWheelZoom: false,
+        zoomControl: true,
+      }).setView([lat, lon], 10);
+
+      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      window.L.circle([lat, lon], {
+        color: "#00ffaa",
+        fillColor: "#00ffaa",
+        fillOpacity: 0.15,
+        radius: 5000,
+      }).addTo(map);
+
+      markerRef.current = window.L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(
+          `<b>Your Farming Area</b><br>5km Radius Activated<br>Lat: ${lat.toFixed(4)}<br>Lon: ${lon.toFixed(4)}`
+        )
+        .openPopup();
+
+      mapRef.current = map;
+
+      // Force Leaflet to recalculate container size after mount
+      setTimeout(() => map.invalidateSize(), 200);
+    },
+    // Re-run when coords change so a fresh map is created for new searches
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [coords, leafletLoaded]
+  );
 
   /* 🔍 City / State Search */
   const searchLocation = async () => {
@@ -123,12 +302,22 @@ const Weather = () => {
       const res = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
           input
-        )}&count=1`
+        )}&count=10`
       );
       const data = await res.json();
 
       if (data.results?.length) {
-        fetchWeather(data.results[0].latitude, data.results[0].longitude);
+        // Filter for results specifically within India
+        const indianResult = data.results.find(
+          (r) => r.country_code === "IN" || r.country?.toLowerCase() === "india"
+        );
+
+        if (indianResult) {
+          fetchWeather(indianResult.latitude, indianResult.longitude);
+        } else {
+          setErrorMsg("Location not found in India. Please search for an Indian region.");
+          setLoading(false);
+        }
       } else {
         setErrorMsg("Location not found.");
         setLoading(false);
@@ -160,25 +349,54 @@ const Weather = () => {
     return ["Maize"];
   };
 
+  /* Auto sync selected crop details when recommendations list changes */
+  const recommendedCrops = getCrops();
+  useEffect(() => {
+    if (recommendedCrops && recommendedCrops.length > 0) {
+      if (!selectedCrop || !recommendedCrops.includes(selectedCrop)) {
+        setSelectedCrop(recommendedCrops[0]);
+      }
+    } else {
+      setSelectedCrop(null);
+    }
+  }, [soilType, weatherData, recommendedCrops, selectedCrop]);
+
   /* 🤖 Advisory */
   const getAdvisory = () => {
     if (soilType === "Laterite")
-      return "🌱 Laterite soil detected. Coconut and plantation crops are suitable.";
+      return "Laterite soil detected within your area. Coconut palm and plantation systems are highly recommended.";
     if (soilType === "Black")
-      return "🖤 Black soil retains moisture well. Cotton is ideal.";
+      return "Black soil contains rich moisture retention. Cotton and deep-rooted legumes are highly suitable.";
     if (soilType === "Sandy")
-      return "⚠️ Sandy soil drains fast. Frequent irrigation needed.";
-    return "✅ Conditions are suitable for farming.";
+      return "Sandy soil has extremely fast drainage. Frequent irrigation or Zaid crops (like Watermelon) are required.";
+    return "Weather and Alluvial soil parameters are highly suited for cereal crops and seasonal farming.";
   };
 
   return (
-    <div className="weather-container">
-      <video autoPlay loop muted className="background-video">
-        <source src={videoBg} type="video/mp4" />
-      </video>
+    <div className={`weather-container ${isDarkMode ? "dark-theme" : "light-theme"}`}>
+      <video ref={videoRef} key={videoBg} autoPlay loop muted playsInline className="background-video" src={videoBg} />
+      <div className="overlay" />
+
+      {/* Floating fixed controls */}
+      <button className="back-home" onClick={() => navigate("/")} title="Back to Home">
+        🏠
+      </button>
+
+      <button 
+        className="theme-toggle-btn" 
+        onClick={() => setIsDarkMode(!isDarkMode)} 
+        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      >
+        {isDarkMode ? "☀️" : "🌙"}
+      </button>
 
       <div className="weather-content">
-        <h1 className="title">🌦 Smart Weather & Crop Advisory</h1>
+        <header className="page-header">
+          <h1 className="title">🌦 Smart Weather & Crop Advisory</h1>
+          <p className="header-subtitle">
+            Providing smart localized crop recommendations for farmers based on exact soil conditions and weather patterns.
+          </p>
+        </header>
 
         <form
           className="search-bar"
@@ -188,48 +406,99 @@ const Weather = () => {
           }}
         >
           <input
-            placeholder="Enter city or state (India)"
+            placeholder="Search by city, town or Indian state..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
           <button type="submit">{loading ? "..." : "Search"}</button>
         </form>
 
-        <select
-          className="soil-select"
-          value={soilType}
-          onChange={(e) => setSoilType(e.target.value)}
-        >
-          <option>Alluvial</option>
-          <option>Black</option>
-          <option>Red</option>
-          <option>Sandy</option>
-          <option>Laterite</option>
-        </select>
+        <div className="controls-row">
+          {autoSoil && (
+            <div className="info-banner">
+              🌍 Map-Detected Soil: <strong>{autoSoil}</strong>
+            </div>
+          )}
+        </div>
 
-        {autoSoil && (
-          <p className="info">
-            🌍 Auto-detected soil: <strong>{autoSoil}</strong>
-          </p>
+        {coords && (
+          <div className="radius-info-banner">
+            <span className="pulse-dot"></span>
+            <span>📍 Localized <strong>5 km radius</strong> analysis active around coordinates: <code>{coords.lat.toFixed(4)}, {coords.lon.toFixed(4)}</code></span>
+          </div>
         )}
 
         {errorMsg && <p className="error">{errorMsg}</p>}
 
-        {weatherData && (
+        {loading && (
+          <div className="weather-loading-container">
+            <div className="weather-spinner"></div>
+            <p>Fetching real-time agricultural climate data...</p>
+          </div>
+        )}
+
+        {!weatherData && !loading && (
+          <div className="weather-prompt-container">
+            <span className="prompt-icon">📍</span>
+            <p>Please authorize location access or search for a location to load localized weather and crop recommendations.</p>
+          </div>
+        )}
+
+        {weatherData && !loading && (
           <div className="main-section">
-            <div className="weather-card left-card">
-              <div className="temp">{weatherData.temperature}°C</div>
-              <p>Feels Like: {weatherData.feels_like}°C</p>
-              <p>Humidity: {weatherData.humidity}%</p>
-              <p>Rainfall: {weatherData.rainfall} mm</p>
-              <p>Season: {getSeason()}</p>
+            {/* Left Card Panel: Weather & Map */}
+            <div className="left-panel">
+              <div className="weather-card">
+                <h2>🌦 Local Weather Station</h2>
+                <div className="temp-row">
+                  <div className="temp">{weatherData.temperature}°C</div>
+                  <div className="weather-season-badge">{getSeason()} Season</div>
+                </div>
+                <div className="weather-stats-grid">
+                  <div className="stat-block">
+                    <span className="stat-icon">🌡️</span>
+                    <span className="stat-label">Feels Like</span>
+                    <span className="stat-value">{weatherData.feels_like}°C</span>
+                  </div>
+                  <div className="stat-block">
+                    <span className="stat-icon">💧</span>
+                    <span className="stat-label">Humidity</span>
+                    <span className="stat-value">{weatherData.humidity}%</span>
+                  </div>
+                  <div className="stat-block">
+                    <span className="stat-icon">🌧️</span>
+                    <span className="stat-label">Rainfall</span>
+                    <span className="stat-value">{weatherData.rainfall} mm</span>
+                  </div>
+                  <div className="stat-block">
+                    <span className="stat-icon">🌱</span>
+                    <span className="stat-label">Soil Moisture</span>
+                    <span className="stat-value">{weatherData.humidity > 70 ? "High" : "Optimal"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="map-card">
+                <h2>🗺️ 5km Geolocation Range</h2>
+                <div ref={mapContainerRef} className="map-container"></div>
+                <div className="coords-display">
+                  <span>LAT: {coords?.lat.toFixed(4)}</span>
+                  <span>LON: {coords?.lon.toFixed(4)}</span>
+                </div>
+              </div>
             </div>
 
+            {/* Middle Card Panel: Crop Recommendations */}
             <div className="agri-card">
-              <h2>🌾 Recommended Crops</h2>
+              <h2>🌾 Crop Recommendations</h2>
+              <span className="grid-helper">Select any crop card below to open its step-by-step farming instructions:</span>
               <div className="crop-grid">
-                {getCrops().map((c) => (
-                  <div className="crop-item" key={c}>
+                {recommendedCrops.map((c) => (
+                  <div
+                    className={`crop-item ${selectedCrop === c ? "active-crop" : ""}`}
+                    key={c}
+                    onClick={() => setSelectedCrop(c)}
+                  >
                     <img src={cropImages[c]} alt={c} />
                     <p>{c}</p>
                   </div>
@@ -237,16 +506,72 @@ const Weather = () => {
               </div>
 
               <div className="agri-tips">
-                <strong>🤖 Advisory:</strong>
+                <strong>🤖 Farming Advisory:</strong>
                 <p>{getAdvisory()}</p>
               </div>
             </div>
+
+            {/* Right Card Panel: Crop Details */}
+            {selectedCrop && CROP_DETAILS[selectedCrop] && (
+              <div className="crop-detail-card">
+                <h2>📋 Cultivation Playbook: {selectedCrop}</h2>
+                <div className="detail-item desc">
+                  <p>{CROP_DETAILS[selectedCrop].description}</p>
+                </div>
+                
+                <div className="detail-grid">
+                  <div className="detail-box">
+                    <span className="icon">🌡️</span>
+                    <div className="text">
+                      <span className="label">Optimal Temp</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].temperature}</span>
+                    </div>
+                  </div>
+                  <div className="detail-box">
+                    <span className="icon">💧</span>
+                    <div className="text">
+                      <span className="label">Water Needs</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].water}</span>
+                    </div>
+                  </div>
+                  <div className="detail-box">
+                    <span className="icon">🌱</span>
+                    <div className="text">
+                      <span className="label">Soil Types</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].soil}</span>
+                    </div>
+                  </div>
+                  <div className="detail-box">
+                    <span className="icon">⏳</span>
+                    <div className="text">
+                      <span className="label">Sowing Stage</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].sowing}</span>
+                    </div>
+                  </div>
+                  <div className="detail-box">
+                    <span className="icon">🚜</span>
+                    <div className="text">
+                      <span className="label">Harvest Time</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].harvesting}</span>
+                    </div>
+                  </div>
+                  <div className="detail-box">
+                    <span className="icon">🧪</span>
+                    <div className="text">
+                      <span className="label">Key Nutrients</span>
+                      <span className="value">{CROP_DETAILS[selectedCrop].nutrients}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-item tips">
+                  <strong>💡 Pro-Farming Tips:</strong>
+                  <p>{CROP_DETAILS[selectedCrop].tips}</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
-        <button className="back-home" onClick={() => navigate("/")}>
-          🏠
-        </button>
       </div>
     </div>
   );

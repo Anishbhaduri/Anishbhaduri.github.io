@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"; // ‚úÖ ADDED useNavigate
 import { useScroll, useTransform, motion } from "framer-motion";
 import farming3 from "../assets/images/farming3.jpg";
@@ -12,18 +12,115 @@ import aritraImg from "../assets/images/aritra.jpg";
 import Innovative from "../assets/images/Innovative.webp";
 import plant_disease from "../assets/images/plant_disease.webp";
 import "../css/home.css";
+import { useAuth } from "../contexts/AuthContext";
+
+const TEAM_MEMBERS = [
+  {
+    name: "Anish Bhaduri",
+    role: "Web Developer",
+    img: anishImg,
+    linkedin: "https://linkedin.com/in/anish-bhaduri",
+    email: "anish@gmail.com",
+  },
+  {
+    name: "Priantu Das",
+    role: "ML Engineer",
+    img: priantuImg,
+    linkedin: "https://linkedin.com/in/priantu-das",
+    email: "priantu@gmail.com",
+  },
+  {
+    name: "Nital Kumari",
+    role: "UX/UI Designer",
+    img: nitalImg,
+    linkedin: "https://linkedin.com/in/nital-kumari",
+    email: "nital@gmail.com",
+  },
+  {
+    name: "Biswajyoti Ray",
+    role: "ML Engineer",
+    img: biswajitImg,
+    linkedin: "https://linkedin.com/in/biswajyoti-ray",
+    email: "biswajyoti@gmail.com",
+  },
+  {
+    name: "Aritra Kar",
+    role: "Supporter",
+    img: aritraImg,
+    linkedin: "https://linkedin.com/in/aritra-kar",
+    email: "aritra@gmail.com",
+  },
+];
+
+const FloatingBackground = ({ count = 12 }) => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    const newItems = Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 90 + 5}%`,
+      size: Math.random() * 25 + 15, // 15px to 40px
+      delay: `${Math.random() * 12}s`,
+      duration: `${Math.random() * 15 + 15}s`, // 15s to 30s
+      type: Math.random() > 0.45 ? "leaf" : "particle",
+    }));
+    setItems(newItems);
+  }, [count]);
+
+  return (
+    <div className="floating-container">
+      {items.map((item) => (
+        <div
+          key={item.id}
+          className={`floating-item ${item.type === "leaf" ? "leaf-item" : "particle"}`}
+          style={{
+            left: item.left,
+            width: `${item.size}px`,
+            height: `${item.size}px`,
+            animationDelay: item.delay,
+            animationDuration: item.duration,
+          }}
+        >
+          {item.type === "leaf" && (
+            <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+              <path d="M17 8C8 10 5.9 16.1 5 20C9.1 19.1 15.2 17 17 8M2 2C2 2 11 3 16 10C21 17 22 22 22 22C22 22 17 21 10 16C3 11 2 2 2 2Z" />
+            </svg>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const { scrollY } = useScroll();
+  const { user, signOut } = useAuth();
+  const [showGreeting, setShowGreeting] = useState(false);
 
   const navigate = useNavigate(); // ‚úÖ ADDED
 
+  const username = user?.email ? user.email.split("@")[0] : "Farmer";
+  const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
+
+  // Show welcome greeting popup once per session
+  useEffect(() => {
+    const hasGreeted = sessionStorage.getItem("plantpulse-greeted");
+    if (!hasGreeted && user) {
+      // Set a small delay for a better user experience so it doesn't pop up instantly before assets load
+      const timer = setTimeout(() => {
+        setShowGreeting(true);
+        sessionStorage.setItem("plantpulse-greeted", "true");
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
+
   // ‚úÖ ADDED logout handler
-  const handleLogout = () => {
-    localStorage.removeItem("loggedIn");
-    localStorage.removeItem("userEmail"); // optional
+  const handleLogout = async () => {
+    await signOut();
+    sessionStorage.removeItem("plantpulse-greeted");
     navigate("/login");
   };
 
@@ -36,10 +133,34 @@ function Home() {
         header.classList.remove("scrolled");
       }
 
-      if (window.scrollY > 200) {
-        setShowScrollBtn(true);
+      const featuresSection = document.getElementById("features");
+      if (featuresSection) {
+        const threshold = featuresSection.offsetTop - 120;
+        if (window.scrollY >= threshold) {
+          setShowScrollBtn(true);
+        } else {
+          setShowScrollBtn(false);
+        }
       } else {
-        setShowScrollBtn(false);
+        if (window.scrollY > 500) {
+          setShowScrollBtn(true);
+        } else {
+          setShowScrollBtn(false);
+        }
+      }
+
+      // Check overlap between scroll-to-home button and footer
+      const footer = document.querySelector(".footer");
+      const btn = document.querySelector(".scroll-to-home-btn");
+      if (footer && btn) {
+        const footerRect = footer.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        // Check if the top of the footer is above the bottom of the button
+        if (footerRect.top <= btnRect.bottom) {
+          btn.classList.add("over-footer");
+        } else {
+          btn.classList.remove("over-footer");
+        }
       }
     };
 
@@ -71,6 +192,7 @@ function Home() {
   }, [menuOpen]);
 
   const handleMenuClick = () => setMenuOpen((prev) => !prev);
+  const handleNavLinkClick = () => setMenuOpen(false);
 
   const fadeUp = {
     hidden: { opacity: 0, y: 50 },
@@ -122,46 +244,35 @@ Empowering farmers with technology that works in the field, not just in theory ‚
         </div>
 
         <nav className={`navbar${menuOpen ? " active" : ""}`}>
-          <a href="#home" className="nav-link">
+          <a href="#home" className="nav-link" onClick={handleNavLinkClick}>
             Home
           </a>
-          <a href="#features" className="nav-link">
+          <a href="#features" className="nav-link" onClick={handleNavLinkClick}>
             Features
           </a>
-          <a href="#about" className="nav-link">
+          <a href="#about" className="nav-link" onClick={handleNavLinkClick}>
             About
           </a>
-          <a href="#contact" className="nav-link">
+          <a href="#contact" className="nav-link" onClick={handleNavLinkClick}>
             Contact
           </a>
-          <Link to="/upload" className="btn nav-link">
+          <Link to="/dashboard" className="nav-link" onClick={handleNavLinkClick}>
+            Dashboard
+          </Link>
+          <Link to="/upload" className="btn nav-link" onClick={handleNavLinkClick}>
             Model
           </Link>
-        </nav>
-
-        {/* ‚úÖ ADDED Logout Button */}
-        {/* <button
-          onClick={handleLogout}
-          style={{
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "6px",
-            display: "flex",
-            alignItems: "center",
-          }}
-          title="Logout"
-        >
-          <img
-            src="https://www.svgrepo.com/show/13695/logout.svg"
-            alt="Logout"
-            style={{
-              width: "24px",
-              height: "24px",
-              filter: "grayscale(100%) brightness(0)",
+          <button
+            onClick={() => {
+              handleNavLinkClick();
+              handleLogout();
             }}
-          />
-        </button> */}
+            className="logout-btn"
+            title="Logout"
+          >
+            Logout
+          </button>
+        </nav>
          
 
         <button
@@ -178,6 +289,7 @@ Empowering farmers with technology that works in the field, not just in theory ‚
       {/* Hero Section */}
       <section className="home" id="home">
         <video className="video" src={home} autoPlay loop muted />
+        <FloatingBackground count={14} />
         <motion.div
           className="content"
           initial="hidden"
@@ -190,10 +302,16 @@ Empowering farmers with technology that works in the field, not just in theory ‚
             Smart Farming Guide
           </Link>
         </motion.div>
+        <div className="scroll-indicator">
+          <div className="mouse">
+            <div className="wheel"></div>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
       <section className="features" id="features" aria-label="Features">
+        <FloatingBackground count={10} />
         <motion.div
           className="heading"
           initial="hidden"
@@ -202,9 +320,7 @@ Empowering farmers with technology that works in the field, not just in theory ‚
           variants={fadeUp}
           transition={{ duration: 1 }}
         >
-          <h1 align="center" style={{ fontSize: "2rem", fontWeight: "bold" }}>
-            Features
-          </h1>
+          <h1>Features</h1>
           <p>
             PlantPulse empowers farmers with AI-driven crop recommendations,
             disease detection, and climate insights to make smarter, sustainable
@@ -212,17 +328,9 @@ Empowering farmers with technology that works in the field, not just in theory ‚
           </p>
         </motion.div>
 
-        <div
-          className="button-container0"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "1rem",
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="button-container0">
           <Link to="/Weatherforcast" className="buttonn active">
-            Weather Forcasting
+            Weather Forecasting
           </Link>
           <Link to="/upload" className="buttonn">
             Identify Diseases
@@ -232,16 +340,7 @@ Empowering farmers with technology that works in the field, not just in theory ‚
           </Link>
         </div>
 
-        <div
-          className="row"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-        >
+        <div className="features-list">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -257,15 +356,20 @@ Empowering farmers with technology that works in the field, not just in theory ‚
                   src={feature.img}
                   alt={feature.title}
                   className="rounded-corner-image parallax-img"
-                  style={{ y: yParallax }}
                   whileHover={{ scale: 1.05 }}
                 />
               </div>
               <div className="content">
                 <h1>{feature.title}</h1>
                 <p>{feature.desc}</p>
-                <Link to="#" className="all-btn">
-                  More Info
+                <Link to={
+                  index === 0 ? "/upload" :
+                  index === 1 ? "/guidepage" :
+                  index === 2 ? "/dashboard" : "/guidepage"
+                } className="all-btn">
+                  {index === 0 ? "Identify Diseases" :
+                   index === 1 ? "Get Farming Guide" :
+                   index === 2 ? "View Dashboard" : "Learn More"}
                 </Link>
               </div>
             </motion.div>
@@ -275,100 +379,76 @@ Empowering farmers with technology that works in the field, not just in theory ‚
 
       {/* About Section */}
       <section className="about" id="about" aria-label="About">
-        <div className="responsive-container-block outer-container">
+        <div className="responsive-container-block outer-container" style={{ position: "relative", overflow: "hidden" }}>
+          <FloatingBackground count={8} />
           <div className="responsive-container-block inner-container">
             <h1 className="text-blk section-head-text">Meet Our Team</h1>
             <p className="text-blk section-subhead-text">
               A passionate team of innovators blending agriculture and
-              technology to help
+              technology to help farmers grow healthier crops and maximize their yields.
             </p>
-            <div className="responsive-container-block team-list">
-              {[
-                {
-                  name: "Anish Bhaduri",
-                  role: "Web Developer",
-                  img: anishImg,
-                  linkedin: "https://linkedin.com/in/anish-bhaduri",
-                  email: "anish@gmail.com",
-                },
-                {
-                  name: "Priantu Das",
-                  role: "ML Engineer",
-                  img: priantuImg,
-                  linkedin: "https://linkedin.com/in/priantu-das",
-                  email: "priantu@gmail.com",
-                },
-                {
-                  name: "Nital Kumari",
-                  role: "UX/UI Designer",
-                  img: nitalImg,
-                  linkedin: "https://linkedin.com/in/nital-kumari",
-                  email: "nital@gmail.com",
-                },
-                {
-                  name: "Biswajyoti Ray",
-                  role: "ML Engineer",
-                  img: biswajitImg,
-                  linkedin: "https://linkedin.com/in/biswajyoti-ray",
-                  email: "biswajyoti@gmail.com",
-                },
-                {
-                  name: "Aritra Kar",
-                  role: "Supporter",
-                  img: aritraImg,
-                  linkedin: "https://linkedin.com/in/aritra-kar",
-                  email: "aritra@gmail.com",
-                },
-              ].map((member) => (
-                <div
-                  key={member.name}
-                  className="responsive-cell-block team-card-container"
-                >
-                  <div className="team-card">
-                    <div className="img-wrapper">
-                      <img
-                        className="team-img"
-                        src={member.img}
-                        alt={member.name}
-                      />
+            <div className="responsive-container-block team-list-container">
+              <div className="team-track">
+                <div className="team-group">
+                  {TEAM_MEMBERS.map((member, index) => (
+                    <div key={`member-orig-${index}`} className="responsive-cell-block team-card-container">
+                      <div className="team-card">
+                        <div className="img-wrapper">
+                          <img className="team-img" src={member.img} alt={member.name} />
+                        </div>
+                        <p className="text-blk name">{member.name}</p>
+                        <p className="text-blk position">{member.role}</p>
+                        <div className="social-media-links">
+                          <a href={member.linkedin} target="_blank" rel="noreferrer" title="LinkedIn" className="social-icon linkedin-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                          </a>
+                          <a href={`mailto:${member.email}`} title="Email" className="social-icon email-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-blk name">{member.name}</p>
-                    <p className="text-blk position">{member.role}</p>
-                    <div className="social-media-links">
-                      <a
-                        href={member.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="LinkedIn"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          width="18"
-                          height="18"
-                          fill="#0b0101ff"
-                        >
-                          <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z" />
-                        </svg>
-                      </a>
-
-                      <a href={`mailto:${member.email}`}>
-                        <img
-                          src="https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/gray-mail.svg"
-                          alt="Email"
-                        />
-                      </a>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+                <div className="team-group cloned-group">
+                  {TEAM_MEMBERS.map((member, index) => (
+                    <div key={`member-clone-${index}`} className="responsive-cell-block team-card-container">
+                      <div className="team-card">
+                        <div className="img-wrapper">
+                          <img className="team-img" src={member.img} alt={member.name} />
+                        </div>
+                        <p className="text-blk name">{member.name}</p>
+                        <p className="text-blk position">{member.role}</p>
+                        <div className="social-media-links">
+                          <a href={member.linkedin} target="_blank" rel="noreferrer" title="LinkedIn" className="social-icon linkedin-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                          </a>
+                          <a href={`mailto:${member.email}`} title="Email" className="social-icon email-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer" id="footer" aria-label="Footer">
+      {/* Footer / Contact */}
+      <footer className="footer" id="contact" aria-label="Footer">
         <div className="box-container">
           <div className="box">
             <h3>Quick Links</h3>
@@ -397,9 +477,56 @@ Empowering farmers with technology that works in the field, not just in theory ‚
         </div>
 
         <div className="credit">
-          ¬© 2025 <span>Plant Pulse</span> ‚Äî All Rights Reserved
+          ¬© 2026 <span>Plant Pulse</span> ‚Äî All Rights Reserved
         </div>
       </footer>
+
+      {/* Welcome Greeting Popup */}
+      {showGreeting && (
+        <div className="welcome-popup-overlay" onClick={() => setShowGreeting(false)}>
+          <div className="welcome-popup-content glass-card animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <button className="welcome-popup-close" onClick={() => setShowGreeting(false)}>
+              &times;
+            </button>
+            <div className="welcome-popup-header">
+              <div className="welcome-icon-wrapper">
+                <svg className="welcome-leaf-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 8C8 10 5.9 16.1 5 20C9.1 19.1 15.2 17 17 8M2 2C2 2 11 3 16 10C21 17 22 22 22 22C22 22 17 21 10 16C3 11 2 2 2 2Z" />
+                </svg>
+              </div>
+              <h2>Welcome to Plant Pulse, {capitalizedUsername}! üåø</h2>
+              <p className="welcome-subtitle">Your Smart Farming Journey Starts Here</p>
+            </div>
+            <div className="welcome-popup-body">
+              <p>
+                We are thrilled to assist you today. Plant Pulse helps you monitor crop health, identify diseases instantly, and get real-time weather forecasts to maximize your harvest.
+              </p>
+              <div className="welcome-quick-links">
+                <h4>Quick Actions:</h4>
+                <div className="quick-links-grid">
+                  <Link to="/upload" className="quick-link-item" onClick={() => setShowGreeting(false)}>
+                    <span className="icon">üîç</span>
+                    <span>Identify Diseases</span>
+                  </Link>
+                  <Link to="/Weatherforcast" className="quick-link-item" onClick={() => setShowGreeting(false)}>
+                    <span className="icon">‚òÄÔ∏è</span>
+                    <span>Weather Forecast</span>
+                  </Link>
+                  <Link to="/guidepage" className="quick-link-item" onClick={() => setShowGreeting(false)}>
+                    <span className="icon">üìñ</span>
+                    <span>Farming Guide</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="welcome-popup-footer">
+              <button className="welcome-dismiss-btn" onClick={() => setShowGreeting(false)}>
+                Let's Grow! üöÄ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

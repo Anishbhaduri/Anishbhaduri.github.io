@@ -1,11 +1,52 @@
 // src/components/FileUploader.jsx
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/FileUploader.css";
 
 // ✅ Make sure these files exist in your project
 import farmVideo from "../assets/video/farm.mp4";
 import leafUpload from "../assets/images/leaf-upload.png";
 import farmerHappy from "../assets/images/farmer-happy.png";
+
+const FloatingBackground = ({ count = 8 }) => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    const newItems = Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 90 + 5}%`,
+      size: Math.random() * 20 + 12, // 12px to 32px
+      delay: `${Math.random() * 8}s`,
+      duration: `${Math.random() * 12 + 12}s`, // 12s to 24s
+      type: Math.random() > 0.45 ? "leaf" : "particle",
+    }));
+    setItems(newItems);
+  }, [count]);
+
+  return (
+    <div className="floating-container">
+      {items.map((item) => (
+        <div
+          key={item.id}
+          className={`floating-item ${item.type === "leaf" ? "leaf-item" : "particle"}`}
+          style={{
+            left: item.left,
+            width: `${item.size}px`,
+            height: `${item.size}px`,
+            animationDelay: item.delay,
+            animationDuration: item.duration,
+          }}
+        >
+          {item.type === "leaf" && (
+            <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+              <path d="M17 8C8 10 5.9 16.1 5 20C9.1 19.1 15.2 17 17 8M2 2C2 2 11 3 16 10C21 17 22 22 22 22C22 22 17 21 10 16C3 11 2 2 2 2Z" />
+            </svg>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const FileUploader = () => {
   const [file, setFile] = useState(null);
@@ -14,6 +55,11 @@ const FileUploader = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [showIntro, setShowIntro] = useState(true);
   const fileInputRef = useRef(null);
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Auto-hide intro after few seconds (8s)
   useEffect(() => {
@@ -109,8 +155,10 @@ const FileUploader = () => {
 };
 
 
+  const navigate = useNavigate();
+
   const handleGoHome = () => {
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (
@@ -119,6 +167,9 @@ const FileUploader = () => {
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => e.preventDefault()}
     >
+      {/* 🌿 Floating Bio-Particles and Leaves Background */}
+      <FloatingBackground count={8} />
+
       {/* 🎥 Background Video */}
       <video className="farm-video" autoPlay loop muted playsInline>
         <source src={farmVideo} type="video/mp4" />
@@ -198,6 +249,14 @@ const FileUploader = () => {
             </div>
           )}
 
+          {loading && (
+            <div className="analysis-scanner-overlay">
+              <div className="scanner-line"></div>
+              <div className="scanner-spinner"></div>
+              <p>AI Neural Scan in progress...</p>
+            </div>
+          )}
+
           <input
             ref={fileInputRef}
             type="file"
@@ -242,25 +301,27 @@ const FileUploader = () => {
       {/* 🌱 Info Section */}
       <section className={`info-section ${showIntro ? "hidden-section" : "visible-section"}`}>
         <div className="info-content">
-          <h2>🌱 A Greener Tomorrow</h2>
-          <p>
-            At <strong>Plant Pulse</strong>, we’re on a mission to revolutionize agriculture
-            through AI. Our goal is to help farmers detect plant diseases early —
-            saving crops, reducing chemical use, and promoting sustainability.
-          </p>
-          <p>
-            Every pixel of data we process brings farmers closer to better yields,
-            cleaner soil, and a future where technology and nature grow hand in hand.
-          </p>
-          <p className="subtext">
-            🌾 Together, we cultivate innovation, sustainability, and a greener tomorrow.
-          </p>
           <img
             src={farmerHappy}
             alt="Smiling farmer holding crops"
             className="info-img"
             onError={(e) => (e.currentTarget.style.display = "none")}
           />
+          <div className="info-text">
+            <h2>🌱 A Greener Tomorrow</h2>
+            <p>
+              At <strong>Plant Pulse</strong>, we’re on a mission to revolutionize agriculture
+              through AI. Our goal is to help farmers detect plant diseases early —
+              saving crops, reducing chemical use, and promoting sustainability.
+            </p>
+            <p>
+              Every pixel of data we process brings farmers closer to better yields,
+              cleaner soil, and a future where technology and nature grow hand in hand.
+            </p>
+            <p className="subtext">
+              🌾 Together, we cultivate innovation, sustainability, and a greener tomorrow.
+            </p>
+          </div>
         </div>
       </section>
 
