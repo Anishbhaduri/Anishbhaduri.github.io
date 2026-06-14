@@ -498,20 +498,18 @@ Empowering farmers with technology that works in the field, not just in theory �
               &times;
             </button>
             <div className="welcome-popup-header">
-              <div className="welcome-icon-wrapper">
-                <svg className="welcome-leaf-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17 8C8 10 5.9 16.1 5 20C9.1 19.1 15.2 17 17 8M2 2C2 2 11 3 16 10C21 17 22 22 22 22C22 22 17 21 10 16C3 11 2 2 2 2Z" />
-                </svg>
-              </div>
-              <h2>Welcome to Plant Pulse, {capitalizedUsername}! 🌿</h2>
+               <div className="welcome-icon-wrapper">
+                 <span className="welcome-emoji-icon">🌿</span>
+              </div> 
+              <h2> Welcome to Plant Pulse!</h2>
               <p className="welcome-subtitle">Your Smart Farming Journey Starts Here</p>
             </div>
             <div className="welcome-popup-body">
               <p>
                 We are thrilled to assist you today. Plant Pulse helps you monitor crop health, identify diseases instantly, and get real-time weather forecasts to maximize your harvest.
               </p>
-              <div className="welcome-quick-links">
-                <h4>Quick Actions:</h4>
+              {/* <div className="welcome-quick-links">
+                <h4>Quick Actions: </h4>
                 <div className="quick-links-grid">
                   <Link to="/upload" className="quick-link-item" onClick={() => setShowGreeting(false)}>
                     <span className="icon">🔍</span>
@@ -526,11 +524,11 @@ Empowering farmers with technology that works in the field, not just in theory �
                     <span>Farming Guide</span>
                   </Link>
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className="welcome-popup-footer">
               <button className="welcome-dismiss-btn" onClick={() => setShowGreeting(false)}>
-                Let's Grow! 🚀
+                Get Started!🌿
               </button>
             </div>
           </div>
