@@ -390,6 +390,12 @@ export default function SanAgroPage() {
                 </div>
               </div>
             </div>
+            
+            <div className="modal-footer">
+              <button className="modal-footer-close-btn" onClick={() => setActiveCrop(null)}>
+                Close Analysis
+              </button>
+            </div>
           </div>
         </div>
       )}
