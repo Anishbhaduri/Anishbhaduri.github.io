@@ -1287,9 +1287,10 @@ a { text-decoration: none; }
   color: var(--accent-green);
 }
 
-.welcome-leaf-icon {
-  width: 32px;
-  height: 32px;
+.welcome-emoji-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  display: inline-block;
   animation: welcomePulse 2s infinite ease-in-out;
 }
 

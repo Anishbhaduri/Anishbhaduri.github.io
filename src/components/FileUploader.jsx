@@ -1,12 +1,381 @@
 // src/components/FileUploader.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { 
+  Camera, 
+  Upload, 
+  Trash2, 
+  CheckCircle2, 
+  RotateCcw, 
+  AlertTriangle, 
+  Info, 
+  ShieldCheck, 
+  Flame, 
+  Sparkles,
+  ArrowRight
+} from "lucide-react";
 import "../css/FileUploader.css";
 
 // ✅ Make sure these files exist in your project
 import farmVideo from "../assets/video/farm.mp4";
 import leafUpload from "../assets/images/leaf-upload.png";
 import farmerHappy from "../assets/images/farmer-happy.png";
+
+// --- Recommendations Database Lookup Function ---
+const getDiseaseDetails = (className) => {
+  if (!className) return null;
+  const parts = className.split("___");
+  const plant = parts[0]?.replace(/_/g, " ") || "Plant";
+  const disease = parts[1]?.replace(/_/g, " ") || "Unknown Condition";
+  
+  const isHealthy = disease.toLowerCase().includes("healthy");
+  const key = className;
+  
+  // Default general guide
+  const defaultGuide = {
+    name: disease,
+    plant: plant,
+    isHealthy: isHealthy,
+    description: isHealthy 
+      ? `Your ${plant} is showing excellent health with strong green leaves and no signs of major pathogen infection.`
+      : `An unidentified disease has been detected on your ${plant} leaves. It is likely a fungal, bacterial, or viral pathogen.`,
+    severity: isHealthy ? "Healthy" : "Moderate",
+    organic: isHealthy 
+      ? ["Apply organic compost to enrich the soil.", "Use seaweed extract to boost plant immunity."]
+      : ["Isolate the infected plant if in a greenhouse.", "Prune and destroy infected leaves.", "Apply organic neem oil spray to prevent spread."],
+    chemical: isHealthy 
+      ? ["No chemical treatment required."]
+      : ["Apply a broad-spectrum copper fungicide.", "Ensure proper crop nutrition to build resistance."],
+    prevention: [
+      "Water at the base of the plant to keep leaves dry.",
+      "Ensure adequate spacing between plants for ventilation.",
+      "Prune the lower leaves to prevent soil splash transmission."
+    ],
+    steps: isHealthy 
+      ? [
+          "Inspect leaf undersides weekly for microscopic pests.",
+          "Add 2 inches of compost around the base (keep it away from the stem).",
+          "Water deeply and consistently early in the morning.",
+          "Keep monitoring growth and celebrate your healthy plant!"
+        ]
+      : [
+          "Clip off the affected leaves with sterilized pruning shears.",
+          "Dispose of the diseased material away from your crops (do not compost).",
+          "Apply an organic neem oil or copper-based spray on dry leaves.",
+          "Adjust watering to keep the foliage completely dry."
+        ]
+  };
+  
+  const database = {
+    "Apple___Apple_scab": {
+      name: "Apple Scab",
+      plant: "Apple",
+      isHealthy: false,
+      severity: "Moderate to High",
+      description: "A fungal infection caused by Venturia inaequalis. It appears as olive-green to black velvet-like spots on leaves, causing them to curl, turn yellow, and drop prematurely, weakening the tree.",
+      organic: [
+        "Rake and destroy all fallen leaves under the tree to break the winter spore cycle.",
+        "Spray organic neem oil or liquid sulfur-based fungicides early in the spring.",
+        "Apply compost tea to the root system to boost overall tree immunity."
+      ],
+      chemical: [
+        "Apply copper soap or Captan-based fungicides during the green tip stage and petal fall stage."
+      ],
+      prevention: [
+        "Plant resistant apple varieties (e.g., Liberty, Enterprise).",
+        "Prune branches annually to maximize sunlight and wind penetration.",
+        "Avoid overhead sprinkler watering; use drip lines."
+      ],
+      steps: [
+        "Rake up and burn/bury all fallen apple leaves immediately.",
+        "Prune the tree canopy during dormancy to improve light and air flow.",
+        "Apply organic copper fungicide spray early in the morning when buds break.",
+        "Avoid overhead watering to keep leaf surfaces dry."
+      ]
+    },
+    "Apple___Black_rot": {
+      name: "Black Rot",
+      plant: "Apple",
+      isHealthy: false,
+      severity: "High",
+      description: "A fungal disease causing purple-rimmed brown spots on leaves (often called 'frog-eye leaf spot'), black cankers on branches, and black, sunken rot on maturing fruit.",
+      organic: [
+        "Prune out dead wood, mummified fruit, and cankers during the winter.",
+        "Apply organic copper spray in early spring before blossoms open.",
+        "Apply organic mulch around the tree base to cover old spores."
+      ],
+      chemical: [
+        "Apply fungicides containing Captan or Thiophanate-methyl during active growth stages."
+      ],
+      prevention: [
+        "Prune the canopy to ensure rapid leaf drying after rain.",
+        "Remove host plants like wild crabapples from the vicinity.",
+        "Sanitize pruning shears with isopropyl alcohol after every cut."
+      ],
+      steps: [
+        "Prune out infected twigs 6 inches below the rot and destroy them.",
+        "Sanitize your shears in rubbing alcohol between every single cut.",
+        "Collect and dispose of all mummified fruit hanging on the tree.",
+        "Apply a preventive copper fungicide spray in early spring."
+      ]
+    },
+    "Apple___Cedar_apple_rust": {
+      name: "Cedar Apple Rust",
+      plant: "Apple",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "A complex fungal disease that requires both cedar/juniper trees and apple trees to complete its life cycle. It causes bright, striking orange-yellow spots on the upper leaf surface.",
+      organic: [
+        "Remove cedar galls from nearby juniper trees in early spring.",
+        "Spray copper or sulfur-based organic fungicides when buds begin to swell."
+      ],
+      chemical: [
+        "Apply Myclobutanil-based fungicides to apple trees at the first sign of rust spots."
+      ],
+      prevention: [
+        "Do not plant apple trees within 100 yards of red cedar or juniper trees.",
+        "Select rust-resistant apple varieties."
+      ],
+      steps: [
+        "Remove orange, jelly-like galls from nearby cedar/juniper trees.",
+        "Spray apple foliage with organic sulfur when leaf buds show green.",
+        "Manually pick off infected leaves if the tree is young and infection is low.",
+        "Water at ground level; do not wet the foliage."
+      ]
+    },
+    "Corn___Common_rust": {
+      name: "Common Rust",
+      plant: "Corn",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "Fungal disease caused by Puccinia sorghi. It produces powdery, golden-brown to cinnamon-brown pustules on both upper and lower leaf surfaces, causing leaf yellowing and reducing yield.",
+      organic: [
+        "Remove and destroy infected plant debris at harvest.",
+        "Apply organic neem oil to control early pustule development.",
+        "Spray a baking soda and water solution to create an alkaline leaf surface."
+      ],
+      chemical: [
+        "Apply fungicides containing strobilurins or triazoles if infection spreads early in the season."
+      ],
+      prevention: [
+        "Plant rust-resistant corn hybrids.",
+        "Rotate corn with non-grass crops like soybeans or clover.",
+        "Space corn plants properly to encourage leaf drying."
+      ],
+      steps: [
+        "Prune and destroy the heavily rusted lower leaves.",
+        "Transition to watering at the soil level; avoid overhead sprinklers.",
+        "Apply a baking-soda-based foliar spray on dry afternoons.",
+        "Plan next season's crop rotation with legumes to break the cycle."
+      ]
+    },
+    "Corn___Gray_leaf_spot": {
+      name: "Gray Leaf Spot",
+      plant: "Corn",
+      isHealthy: false,
+      severity: "High",
+      description: "A fungal disease causing long, narrow, rectangular gray-to-tan lesions running parallel to leaf veins. It can block photosynthesis, resulting in severe yield losses.",
+      organic: [
+        "Incorporate deep tillage to bury infected corn stalks and leaves.",
+        "Allow corn residue to decompose completely before replanting."
+      ],
+      chemical: [
+        "Apply strobilurin or triazole fungicides at tassel emergence if lesions are found on leaves below the ear."
+      ],
+      prevention: [
+        "Practice a 2-year crop rotation away from corn.",
+        "Avoid planting corn in wet, low-lying fields.",
+        "Select highly resistant corn hybrids."
+      ],
+      steps: [
+        "Bury post-harvest stalks deeply in the soil to accelerate decomposition.",
+        "Ensure proper nitrogen fertilization to help corn resist infection.",
+        "Maintain optimal planting density to allow sunlight to dry leaves.",
+        "Monitor lower leaves weekly during warm, humid weather."
+      ]
+    },
+    "Potato___Early_blight": {
+      name: "Early Blight",
+      plant: "Potato",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "Fungal pathogen Alternaria solani causes dark, concentric ring spots (resembling a target) on older leaves. It reduces potato size and yields.",
+      organic: [
+        "Spray organic copper fungicides at 7-10 day intervals.",
+        "Apply straw mulch to prevent soil-borne spores from splashing onto lower leaves."
+      ],
+      chemical: [
+        "Apply Chlorothalonil or Mancozeb-based fungicides preventively."
+      ],
+      prevention: [
+        "Rotate crops: do not plant potatoes, tomatoes, or peppers in the same soil for 3 years.",
+        "Ensure high soil nutrition (nitrogen and potassium)."
+      ],
+      steps: [
+        "Cut off and destroy the lowest 2-3 layers of leaves that touch soil.",
+        "Apply a 3-inch layer of clean straw mulch around potato plants.",
+        "Spray with organic copper fungicide every 7 days during humid weather.",
+        "Water early in the morning so sun dries the leaves immediately."
+      ]
+    },
+    "Potato___Late_blight": {
+      name: "Late Blight",
+      plant: "Potato",
+      isHealthy: false,
+      severity: "Critical",
+      description: "A highly destructive water mold (Phytophthora infestans) causing large, dark, water-soaked leaf spots with white fuzzy mold on leaf undersides. Can destroy entire crops in days.",
+      organic: [
+        "Immediately pull up and destroy all infected plants. Do not compost.",
+        "Apply preventative copper sprays during cool, wet weather forecasts."
+      ],
+      chemical: [
+        "Use systemic fungicides like Metalaxyl or chlorothalonil immediately to save surrounding crops."
+      ],
+      prevention: [
+        "Use certified disease-free seed potatoes.",
+        "Destroy all volunteer potato plants in the spring.",
+        "Ensure soil is well-drained."
+      ],
+      steps: [
+        "Pull up the entire infected plant immediately if lesions cover >10% of leaves.",
+        "Double-bag or burn the infected plants; do NOT compost them.",
+        "Notify neighboring growers, as wind can carry spores for miles.",
+        "Apply preventive copper spray to all surrounding healthy potato plants."
+      ]
+    },
+    "Tomato___Bacterial_spot": {
+      name: "Bacterial Spot",
+      plant: "Tomato",
+      isHealthy: false,
+      severity: "High",
+      description: "Bacterial disease caused by Xanthomonas species. It creates small, dark, water-soaked spots with yellow halos on leaves, eventually causing leaves to drop and creating scabby spots on fruit.",
+      organic: [
+        "Spray with copper fungicide combined with Bacillus subtilis organic spray.",
+        "Remove lower leaves to minimize soil splash inoculation."
+      ],
+      chemical: [
+        "Apply copper fungicide mixed with Mancozeb (to bypass copper resistance)."
+      ],
+      prevention: [
+        "Purchase certified disease-free seeds and seedlings.",
+        "Avoid working in the tomato patch when leaves are wet.",
+        "Clean tools with 10% bleach solution."
+      ],
+      steps: [
+        "Prune diseased lower leaves on a dry, sunny afternoon.",
+        "Spray foliage with organic copper fungicide mixed with Bacillus subtilis.",
+        "Sanitize all pruning tools in rubbing alcohol or bleach after use.",
+        "Avoid overhead watering; use a drip system or water at the stem base."
+      ]
+    },
+    "Tomato___Early_blight": {
+      name: "Early Blight",
+      plant: "Tomato",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "Fungal disease Alternaria solani causes dark brown spots with concentric ring targets on older leaves, leading to yellowing and leaf drop.",
+      organic: [
+        "Spray organic copper fungicide or neem oil weekly.",
+        "Mulch the soil heavily to prevent spores from splashing upwards."
+      ],
+      chemical: [
+        "Apply Chlorothalonil-based fungicides at the first sign of leaf spots."
+      ],
+      prevention: [
+        "Prune lower branches up to 12 inches high to create space.",
+        "Space tomato plants at least 3 feet apart for airflow.",
+        "Rotate tomato crops annually."
+      ],
+      steps: [
+        "Cut off lower leaf branches within 12 inches of the soil.",
+        "Apply a thick organic straw mulch around the root zone.",
+        "Spray the plants with copper fungicide to prevent fungal spread.",
+        "Water early in the morning at the soil level only."
+      ]
+    },
+    "Tomato___Late_blight": {
+      name: "Late Blight",
+      plant: "Tomato",
+      isHealthy: false,
+      severity: "Critical",
+      description: "Phytophthora infestans water mold causes large, greasy blue-gray spots that turn black and form fuzzy white mold in humid weather, rotting leaves and fruit rapidly.",
+      organic: [
+        "Immediately uproot and destroy the entire plant. Do not compost.",
+        "Apply preventative copper fungicide to healthy neighboring plants."
+      ],
+      chemical: [
+        "Use Chlorothalonil or Mancozeb sprays at the first warning of local blight."
+      ],
+      prevention: [
+        "Grow blight-resistant tomato cultivars (e.g., Mountain Merit).",
+        "Avoid overhead watering and keep plants under cover if possible."
+      ],
+      steps: [
+        "Uproot the entire infected tomato plant immediately if white mold is visible.",
+        "Bag and dispose of the plant in the trash; do not compost it.",
+        "Apply organic copper fungicide to nearby healthy plants.",
+        "Switch to drip irrigation and keep tomato leaves dry."
+      ]
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      name: "Tomato Yellow Leaf Curl",
+      plant: "Tomato",
+      isHealthy: false,
+      severity: "High",
+      description: "Viral infection spread by whiteflies. Leaves curl upward and inward, turn bright yellow, and become highly stunted, leading to near-total loss of fruit production.",
+      organic: [
+        "Control whiteflies using organic insecticidal soap or neem oil.",
+        "Hang yellow sticky traps around the tomatoes to catch whiteflies.",
+        "Cover young plants with floating row covers."
+      ],
+      chemical: [
+        "Apply systemic insecticides targeting whiteflies if infestation is severe."
+      ],
+      prevention: [
+        "Grow whitefly-resistant tomato varieties.",
+        "Remove weeds near the garden that may host the virus or whiteflies."
+      ],
+      steps: [
+        "Hang yellow sticky cards near the plants to catch whiteflies.",
+        "Spray leaf undersides with organic neem oil or insecticidal soap.",
+        "Uproot and destroy severely stunted plants to protect healthy ones.",
+        "Cover new transplants with fine mesh row covers for the first 4 weeks."
+      ]
+    }
+  };
+  
+  if (database[key]) {
+    return database[key];
+  }
+  
+  for (const dbKey in database) {
+    if (dbKey.toLowerCase().includes(disease.toLowerCase()) && dbKey.toLowerCase().includes(plant.toLowerCase())) {
+      return database[dbKey];
+    }
+  }
+  
+  if (isHealthy) {
+    return {
+      name: "Healthy Condition",
+      plant: plant,
+      isHealthy: true,
+      severity: "Healthy",
+      description: `Your ${plant} is showing excellent health with strong leaf structure and no signs of major pathogens.`,
+      organic: ["Continue regular weeding and soil conditioning.", "Apply organic compost annually."],
+      chemical: ["No chemical treatments needed."],
+      prevention: ["Continue crop rotation.", "Water at the soil level to keep leaves dry."],
+      steps: [
+        "Inspect leaf undersides weekly for pests.",
+        "Add organic compost to the soil surface.",
+        "Water deeply once or twice a week.",
+        "Celebrate your healthy crop!"
+      ]
+    };
+  }
+  
+  return defaultGuide;
+};
 
 const FloatingBackground = ({ count = 8 }) => {
   const [items, setItems] = useState([]);
@@ -54,7 +423,19 @@ const FileUploader = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showIntro, setShowIntro] = useState(true);
+  
+  // Custom states for camera/tabs
+  const [activeTab, setActiveTab] = useState("upload"); // "upload" or "camera"
+  const [cameraStream, setCameraStream] = useState(null);
+  const [cameraError, setCameraError] = useState("");
+  const [cameraDevices, setCameraDevices] = useState([]);
+  const [selectedCameraId, setSelectedCameraId] = useState("");
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [diseaseInfo, setDiseaseInfo] = useState(null);
+  
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const navigate = useNavigate();
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -67,10 +448,111 @@ const FileUploader = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Sync file preview URL
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
+
+  // Clean up camera on active tab change or component unmount
+  useEffect(() => {
+    if (activeTab === "upload") {
+      stopCamera();
+    }
+    return () => {
+      stopCamera();
+    };
+  }, [activeTab]);
+
+  // --- Webcam Access Functions ---
+  const startCamera = async (deviceId = null) => {
+    setCameraError("");
+    try {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+      
+      const constraints = {
+        video: deviceId 
+          ? { deviceId: { exact: deviceId } } 
+          : { facingMode: { ideal: "environment" } } // Ideal for back-facing phone camera
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      setCameraStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      
+      // Enumerate list of cameras
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter((d) => d.kind === "videoinput");
+      setCameraDevices(videoDevices);
+      if (!selectedCameraId && videoDevices.length > 0) {
+        setSelectedCameraId(videoDevices[0].deviceId);
+      }
+    } catch (err) {
+      console.error("Camera access error:", err);
+      setCameraError("Camera access denied or unavailable. Please upload a file instead.");
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext("2d");
+      
+      // Draw frame to canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const capturedFile = new File([blob], "captured-leaf.jpg", {
+              type: "image/jpeg",
+            });
+            setFile(capturedFile);
+            stopCamera();
+          }
+        },
+        "image/jpeg",
+        0.95
+      );
+    }
+  };
+
+  const handleCameraChange = (e) => {
+    const deviceId = e.target.value;
+    setSelectedCameraId(deviceId);
+    startCamera(deviceId);
+  };
+
   // --- Handlers ---
-  const handleClick = () => {
-    setErrorMsg("");
-    fileInputRef.current?.click();
+  const handleClick = (e) => {
+    if (e.target.closest('.delete-text') || e.target.closest('.camera-tab-content') || e.target.closest('button') || e.target.closest('select')) {
+      return;
+    }
+    if (activeTab === "upload" && !file) {
+      setErrorMsg("");
+      fileInputRef.current?.click();
+    }
   };
 
   const handleDrop = (e) => {
@@ -94,68 +576,65 @@ const FileUploader = () => {
   const handleDeleteFile = () => {
     setFile(null);
     setDisease("None");
+    setDiseaseInfo(null);
     setErrorMsg("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
- const handleSubmit = async () => {
-  setErrorMsg("");
+  const handleSubmit = async () => {
+    setErrorMsg("");
+    setDiseaseInfo(null);
 
-  if (!file) {
-    setErrorMsg("Please upload a leaf image first.");
-    return;
-  }
-
-  if (!file.type.startsWith("image/")) {
-    setErrorMsg("Please upload an image file (jpg / png).");
-    return;
-  }
-
-  setLoading(true);
-  setDisease("Detecting...");
-
-  try {
-    // 1️⃣ Create form data
-    const formData = new FormData();
-    formData.append("file", file); // ⚠️ backend expects "file"
-
-    // 2️⃣ Call ML API
-    const res = await fetch("https://api.biswajr.site/predict", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error(`Server error: ${res.status}`);
+    if (!file) {
+      setErrorMsg("Please upload or capture a leaf image first.");
+      return;
     }
 
-    // 3️⃣ Read ML response
-    const data = await res.json();
+    if (!file.type.startsWith("image/")) {
+      setErrorMsg("Please select an image file (jpg / png).");
+      return;
+    }
 
-    /*
-      Expected response:
-      {
-        class_name: "Apple___Apple_scab",
-        confidence: 7
+    setLoading(true);
+    setDisease("Detecting...");
+
+    try {
+      // 1️⃣ Create form data
+      const formData = new FormData();
+      formData.append("file", file); // ⚠️ backend expects "file"
+
+      // 2️⃣ Call ML API
+      const res = await fetch("https://api.biswajr.site/predict", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
       }
-    */
 
-    const diseaseName = data.class_name || "Unknown Disease";
-    const confidence = data.confidence;
+      // 3️⃣ Read ML response
+      const data = await res.json();
+      const diseaseName = data.class_name || "Unknown Disease";
+      const confidence = data.confidence;
 
-    // 4️⃣ Update UI
-    setDisease(`${diseaseName} (Confidence: ${confidence}%)`);
-  } catch (error) {
-    console.error("ML Prediction Error:", error);
-    setDisease("Error");
-    setErrorMsg("Unable to analyze image. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const navigate = useNavigate();
+      // 4️⃣ Update UI
+      setDisease(`${diseaseName.replace(/___/g, " — ").replace(/_/g, " ")} (Confidence: ${confidence}%)`);
+      
+      // Lookup recommendations guide
+      const info = getDiseaseDetails(diseaseName);
+      if (info) {
+        info.confidence = confidence;
+        setDiseaseInfo(info);
+      }
+    } catch (error) {
+      console.error("ML Prediction Error:", error);
+      setDisease("Error");
+      setErrorMsg("Unable to analyze image. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoHome = () => {
     navigate("/");
@@ -211,49 +690,136 @@ const FileUploader = () => {
         <header className="upload-header">
           <h1 className="page-title">🌿 Plant Pulse</h1>
           <p className="subtitle">
-            Upload a leaf photo and get instant AI-powered disease detection — protect your harvest.
+            Capture a live photo or upload a leaf image to get instant AI-powered disease detection — protect your harvest.
           </p>
         </header>
 
-        {/* Upload Box */}
+        {/* Upload Mode Tabs */}
+        <div className="upload-tabs-container">
+          <button
+            className={`tab-btn ${activeTab === "upload" ? "active" : ""}`}
+            onClick={() => setActiveTab("upload")}
+          >
+            <Upload size={16} style={{ marginRight: 8 }} /> Upload from Gallery
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "camera" ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab("camera");
+              startCamera(selectedCameraId);
+            }}
+          >
+            <Camera size={16} style={{ marginRight: 8 }} /> Take Live Photo
+          </button>
+        </div>
+
+        {/* Upload/Camera Box */}
         <div
-          className="FileUploaderDiv"
+          className={`FileUploaderDiv ${activeTab === "camera" && cameraStream && !file ? "camera-active" : ""}`}
           onClick={handleClick}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
+          onDrop={activeTab === "upload" ? handleDrop : undefined}
+          onDragOver={activeTab === "upload" ? handleDragOver : undefined}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") handleClick();
+            if (e.key === "Enter" || e.key === " ") handleClick(e);
           }}
         >
-          <img
-            className="uploadIMG"
-            src={leafUpload}
-            alt="Leaf upload icon"
-            onError={(e) => (e.currentTarget.style.display = "none")}
-          />
-
-          {!file ? (
-            <div className="uploadedDataInfoDiv">
-              <p className="big">📸 Upload or Drop a Leaf Image</p>
-              <p className="small">JPEG / PNG / JPG — up to 10MB</p>
-            </div>
-          ) : (
-            <div className="uploadedDataInfoDiv">
-              <p className="file-name">File: {file.name}</p>
-              <p className="file-type">Type: {file.type}</p>
-              <p className="delete-text" onClick={handleDeleteFile}>
-                ✖ Remove File
-              </p>
-            </div>
-          )}
-
           {loading && (
             <div className="analysis-scanner-overlay">
               <div className="scanner-line"></div>
               <div className="scanner-spinner"></div>
               <p>AI Neural Scan in progress...</p>
+            </div>
+          )}
+
+          {/* Tab 1: Gallery Upload */}
+          {activeTab === "upload" && (
+            <>
+              {!file ? (
+                <>
+                  <img
+                    className="uploadIMG"
+                    src={leafUpload}
+                    alt="Leaf upload icon"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                  <div className="uploadedDataInfoDiv">
+                    <p className="big">📁 Upload or Drop a Leaf Image</p>
+                    <p className="small">JPEG / PNG / JPG — up to 10MB</p>
+                  </div>
+                </>
+              ) : (
+                <div className="uploadedDataInfoDiv">
+                  {previewUrl && (
+                    <img src={previewUrl} alt="Leaf Preview" className="previewThumbnailImg" />
+                  )}
+                  <p className="file-name">File: {file.name}</p>
+                  <p className="file-type">Type: {file.type}</p>
+                  <span className="delete-text" onClick={(e) => { e.stopPropagation(); handleDeleteFile(); }}>
+                    ✖ Remove File
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Tab 2: Live Camera Capture */}
+          {activeTab === "camera" && (
+            <div className="camera-tab-content" onClick={(e) => e.stopPropagation()}>
+              {!file ? (
+                <div className="webcam-container">
+                  {cameraError ? (
+                    <div className="camera-error-view">
+                      <AlertTriangle size={32} color="#ff8888" style={{ marginBottom: 12 }} />
+                      <p className="camera-err-msg">{cameraError}</p>
+                      <button className="secondary-btn" style={{ marginTop: 12 }} onClick={() => startCamera(selectedCameraId)}>
+                        Retry Camera
+                      </button>
+                    </div>
+                  ) : cameraStream ? (
+                    <>
+                      <div className="webcam-wrapper">
+                        <video ref={videoRef} autoPlay playsInline className="webcam-feed" />
+                        <div className="camera-scan-glow"></div>
+                      </div>
+                      
+                      {cameraDevices.length > 1 && (
+                        <div className="camera-select-wrapper">
+                          <select value={selectedCameraId} onChange={handleCameraChange} className="camera-selector">
+                            {cameraDevices.map((dev, idx) => (
+                              <option key={dev.deviceId} value={dev.deviceId}>
+                                {dev.label || `Camera ${idx + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                      
+                      <div className="webcam-controls">
+                        <button className="webcam-shutter-btn" onClick={capturePhoto}>
+                          <Camera size={18} style={{ marginRight: 8 }} /> Capture Leaf Photo
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="camera-loading-view">
+                      <div className="spinner" style={{ marginBottom: 12 }} />
+                      <p>Accessing camera stream...</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="uploadedDataInfoDiv">
+                  {previewUrl && (
+                    <img src={previewUrl} alt="Captured Leaf Preview" className="previewThumbnailImg" />
+                  )}
+                  <p className="file-name">📸 Captured Live Photo</p>
+                  <span className="delete-text" onClick={(e) => { e.stopPropagation(); handleDeleteFile(); }}>
+                    ✖ Remove and Retake
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -266,29 +832,28 @@ const FileUploader = () => {
           />
         </div>
 
-        {/* Buttons */}
+        {/* Action Buttons */}
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <button
             className="submitButton"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !file}
             aria-busy={loading}
           >
             {loading ? <span className="spinner" /> : "Analyze Leaf"}
           </button>
 
-          <button
-            className="secondary-btn"
-            onClick={() => {
-              if (file) handleDeleteFile();
-              else fileInputRef.current?.click();
-            }}
-          >
-            {file ? "Remove" : "Choose File"}
-          </button>
+          {file && (
+            <button
+              className="secondary-btn"
+              onClick={handleDeleteFile}
+            >
+              Remove
+            </button>
+          )}
         </div>
 
-        {/* Results */}
+        {/* Simple Results Display */}
         <p className="ptagDisease">
           {loading
             ? "🔍 Detecting disease..."
@@ -296,6 +861,104 @@ const FileUploader = () => {
         </p>
 
         {errorMsg && <p className="errorMsg">⚠️ {errorMsg}</p>}
+
+        {/* 🌿 Detailed Disease recommendation & Cure Guide Card */}
+        {diseaseInfo && (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="disease-result-card"
+          >
+            {/* Header section */}
+            <div className="disease-card-header">
+              <div className="badge-row">
+                <span className="plant-badge">🌿 {diseaseInfo.plant}</span>
+                <span className={`severity-badge ${diseaseInfo.severity.toLowerCase().replace(/ /g, "-")}`}>
+                  {diseaseInfo.severity} Severity
+                </span>
+              </div>
+              <h2 className="disease-card-title">{diseaseInfo.name}</h2>
+              <div className="confidence-container">
+                <div className="confidence-label">
+                  <span>AI Matching Confidence</span>
+                  <span>{diseaseInfo.confidence}%</span>
+                </div>
+                <div className="confidence-bar-outer">
+                  <div 
+                    className="confidence-bar-inner" 
+                    style={{ width: `${diseaseInfo.confidence}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* About the condition */}
+            <div className="result-section">
+              <h3 className="section-title">
+                <Info size={18} style={{ marginRight: 8 }} /> About this Condition
+              </h3>
+              <p className="section-body">{diseaseInfo.description}</p>
+            </div>
+
+            {/* Beginner Farmer Step-by-Step Cure Steps */}
+            <div className="result-section step-guide-section">
+              <h3 className="section-title">
+                <Sparkles size={18} style={{ marginRight: 8 }} /> Beginner Farmer Cure Steps
+              </h3>
+              <p className="section-subtitle">Follow these 4 simple steps to treat and nurse your crop back to health:</p>
+              <div className="steps-container">
+                {diseaseInfo.steps.map((step, idx) => (
+                  <div key={idx} className="step-card-item">
+                    <div className="step-badge">{idx + 1}</div>
+                    <div className="step-text-container">
+                      <p className="step-instruction">{step}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Treatments Section */}
+            <div className="treatments-container-grid">
+              <div className="treatment-column organic">
+                <h4 className="treatment-title">
+                  <CheckCircle2 size={16} style={{ marginRight: 6, color: "#10b981" }} /> Organic Treatments (Recommended)
+                </h4>
+                <ul className="treatment-list">
+                  {diseaseInfo.organic.map((item, idx) => (
+                    <li key={idx} className="treatment-item">{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="treatment-column chemical">
+                <h4 className="treatment-title">
+                  <Flame size={16} style={{ marginRight: 6, color: "#f59e0b" }} /> Chemical Treatments (If Severe)
+                </h4>
+                <ul className="treatment-list">
+                  {diseaseInfo.chemical.map((item, idx) => (
+                    <li key={idx} className="treatment-item">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Future Prevention */}
+            <div className="result-section prevention-section">
+              <h3 className="section-title">
+                <ShieldCheck size={18} style={{ marginRight: 8, color: "#10b981" }} /> Prevention & Future Care
+              </h3>
+              <ul className="prevention-list">
+                {diseaseInfo.prevention.map((item, idx) => (
+                  <li key={idx} className="prevention-item">
+                    <ArrowRight size={14} className="bullet-arrow" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        )}
       </main>
 
       {/* 🌱 Info Section */}
