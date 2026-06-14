@@ -194,6 +194,15 @@ function Home() {
   const handleMenuClick = () => setMenuOpen((prev) => !prev);
   const handleNavLinkClick = () => setMenuOpen(false);
 
+  const handleScrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setMenuOpen(false);
+  };
+
   const fadeUp = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0 },
@@ -244,16 +253,16 @@ Empowering farmers with technology that works in the field, not just in theory â
         </div>
 
         <nav className={`navbar${menuOpen ? " active" : ""}`}>
-          <a href="#home" className="nav-link" onClick={handleNavLinkClick}>
+          <a href="#home" className="nav-link" onClick={(e) => handleScrollToSection(e, "home")}>
             Home
           </a>
-          <a href="#features" className="nav-link" onClick={handleNavLinkClick}>
+          <a href="#features" className="nav-link" onClick={(e) => handleScrollToSection(e, "features")}>
             Features
           </a>
-          <a href="#about" className="nav-link" onClick={handleNavLinkClick}>
+          <a href="#about" className="nav-link" onClick={(e) => handleScrollToSection(e, "about")}>
             About
           </a>
-          <a href="#contact" className="nav-link" onClick={handleNavLinkClick}>
+          <a href="#contact" className="nav-link" onClick={(e) => handleScrollToSection(e, "contact")}>
             Contact
           </a>
           <Link to="/dashboard" className="nav-link" onClick={handleNavLinkClick}>
@@ -452,27 +461,27 @@ Empowering farmers with technology that works in the field, not just in theory â
         <div className="box-container">
           <div className="box">
             <h3>Quick Links</h3>
-            <a href="#home">Home</a>
-            <a href="#features">Features</a>
-            <a href="#about">About</a>
+            <a href="#home" onClick={(e) => handleScrollToSection(e, "home")}>Home</a>
+            <a href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
+            <a href="#about" onClick={(e) => handleScrollToSection(e, "about")}>About</a>
           </div>
           <div className="box">
             <h3>Extra Links</h3>
-            <a href="#">Ask Questions</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">Privacy Policy</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Ask Questions</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Terms of Use</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Privacy Policy</a>
           </div>
           <div className="box">
             <h3>Helpful Resources</h3>
-            <a href="#">FAQs</a>
-            <a href="#">User Guides</a>
-            <a href="#">Support Center</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>FAQs</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>User Guides</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Support Center</a>
           </div>
           <div className="box">
             <h3>Stay Connected</h3>
-            <a href="#">Future Scope</a>
-            <a href="#">Community Forum</a>
-            <a href="#">Newsletter</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Future Scope</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Community Forum</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Newsletter</a>
           </div>
         </div>
 
