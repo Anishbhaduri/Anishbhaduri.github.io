@@ -1114,8 +1114,8 @@ const FileUploader = () => {
         {/* Simple Results Display */}
         <p className="ptagDisease">
           {loading
-            ? "🔍 Detecting disease..."
-            : `🌾 Disease Found: ${diseaseFound}`}
+            ? " Detecting disease..."
+            : ` Disease Found: ${diseaseFound}`}
         </p>
 
         {errorMsg && <p className="errorMsg">⚠️ {errorMsg}</p>}
@@ -1139,7 +1139,8 @@ const FileUploader = () => {
               <h2 className="disease-card-title">{diseaseInfo.name}</h2>
               <div className="confidence-container">
                 <div className="confidence-label">
-                  <span>AI Matching Confidence</span>
+                  {/* <span>AI Matching Confidence</span> */}
+                  <span>Confidence</span>
                   <span>{diseaseInfo.confidence}%</span>
                 </div>
                 <div className="confidence-bar-outer">
