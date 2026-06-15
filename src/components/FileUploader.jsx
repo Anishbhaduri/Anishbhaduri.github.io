@@ -1249,7 +1249,7 @@ const FileUploader = () => {
       {/* 🌍 Footer */}
       <footer className="footer-section">
         <p>
-          © {new Date().getFullYear()} <strong>Plant Pulse</strong> — Empowering Smart Farming with Plant Pulse
+          © {new Date().getFullYear()} <strong>Plant Pulse</strong> — Empowering Smart Farming with Plant Pulse 🌿.
         </p>
       </footer>
     </div>
