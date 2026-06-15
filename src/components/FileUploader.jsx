@@ -604,7 +604,7 @@ const FileUploader = () => {
       formData.append("file", file); // ⚠️ backend expects "file"
 
       // 2️⃣ Call ML API
-      const res = await fetch("https://api.biswajr.site/predict", {
+      const res = await fetch("https://dad-pumps-climb-insights.trycloudflare.com/predict", {
         method: "POST",
         body: formData,
       });
