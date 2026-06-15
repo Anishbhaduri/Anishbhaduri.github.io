@@ -150,6 +150,7 @@ const Weather = () => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const videoRef = useRef(null);
+  const mapContainerRef = useRef(null);
 
   // Force reload and play video on source changes (ensures cross-browser auto-play updates)
   useEffect(() => {
@@ -231,59 +232,55 @@ const Weather = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* 🗺️ Map initialization via callback ref (avoids DOM timing races) */
-  const mapContainerRef = useCallback(
-    (node) => {
-      // node is null when the element unmounts
-      if (!node) {
-        if (mapRef.current) {
-          mapRef.current.remove();
-          mapRef.current = null;
-        }
-        return;
-      }
+  /* 🗺️ Map initialization and sync (avoids React callback ref timing gotchas) */
+  useEffect(() => {
+    if (!leafletLoaded || !coords || !mapContainerRef.current || !window.L) return;
 
-      if (!coords || !window.L) return;
-      const { lat, lon } = coords;
+    const { lat, lon } = coords;
 
-      // Destroy stale map if it exists (e.g. after search update)
+    // Destroy stale map if it exists
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
+
+    const map = window.L.map(mapContainerRef.current, {
+      scrollWheelZoom: false,
+      zoomControl: true,
+    }).setView([lat, lon], 10);
+
+    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    window.L.circle([lat, lon], {
+      color: "#00ffaa",
+      fillColor: "#00ffaa",
+      fillOpacity: 0.15,
+      radius: 5000,
+    }).addTo(map);
+
+    markerRef.current = window.L.marker([lat, lon])
+      .addTo(map)
+      .bindPopup(
+        `<b>Your Farming Area</b><br>5km Radius Activated<br>Lat: ${lat.toFixed(4)}<br>Lon: ${lon.toFixed(4)}`
+      )
+      .openPopup();
+
+    mapRef.current = map;
+
+    // Force Leaflet to recalculate container size
+    const timer = setTimeout(() => map.invalidateSize(), 200);
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      clearTimeout(timer);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
-
-      const map = window.L.map(node, {
-        scrollWheelZoom: false,
-        zoomControl: true,
-      }).setView([lat, lon], 10);
-
-      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      window.L.circle([lat, lon], {
-        color: "#00ffaa",
-        fillColor: "#00ffaa",
-        fillOpacity: 0.15,
-        radius: 5000,
-      }).addTo(map);
-
-      markerRef.current = window.L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(
-          `<b>Your Farming Area</b><br>5km Radius Activated<br>Lat: ${lat.toFixed(4)}<br>Lon: ${lon.toFixed(4)}`
-        )
-        .openPopup();
-
-      mapRef.current = map;
-
-      // Force Leaflet to recalculate container size after mount
-      setTimeout(() => map.invalidateSize(), 200);
-    },
-    // Re-run when coords change so a fresh map is created for new searches
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [coords, leafletLoaded]
-  );
+    };
+  }, [coords, leafletLoaded]);
 
   /* 🔍 City / State Search */
   const searchLocation = async () => {
@@ -421,12 +418,7 @@ const Weather = () => {
           )}
         </div>
 
-        {coords && (
-          <div className="radius-info-banner">
-            <span className="pulse-dot"></span>
-            <span>📍 Localized <strong>5 km radius</strong> analysis active around coordinates: <code>{coords.lat.toFixed(4)}, {coords.lon.toFixed(4)}</code></span>
-          </div>
-        )}
+
 
         {errorMsg && <p className="error">{errorMsg}</p>}
 
@@ -478,14 +470,7 @@ const Weather = () => {
                 </div>
               </div>
 
-              <div className="map-card">
-                <h2>🗺️ 5km Geolocation Range</h2>
-                <div ref={mapContainerRef} className="map-container"></div>
-                <div className="coords-display">
-                  <span>LAT: {coords?.lat.toFixed(4)}</span>
-                  <span>LON: {coords?.lon.toFixed(4)}</span>
-                </div>
-              </div>
+
             </div>
 
             {/* Middle Card Panel: Crop Recommendations */}
