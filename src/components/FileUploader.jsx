@@ -599,11 +599,11 @@ const FileUploader = () => {
     setDisease("Detecting...");
 
     try {
-      // 1️⃣ Create form data
+      // 1. form data
       const formData = new FormData();
       formData.append("file", file); // ⚠️ backend expects "file"
 
-      // 2️⃣ Call ML API
+      // 2️. Call model API
       const res = await fetch("https://dad-pumps-climb-insights.trycloudflare.com/predict", {
         method: "POST",
         body: formData,
