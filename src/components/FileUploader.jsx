@@ -25,10 +25,49 @@ import farmerHappy from "../assets/images/farmer-happy.png";
 // --- Recommendations Database Lookup Function ---
 const getDiseaseDetails = (className) => {
   if (!className) return null;
-  const parts = className.split("___");
-  const plant = parts[0]?.replace(/_/g, " ") || "Plant";
-  const disease = parts[1]?.replace(/_/g, " ") || "Unknown Condition";
-  
+
+  let plant = "Plant";
+  let disease = "Unknown Condition";
+
+  if (className.includes("___")) {
+    const parts = className.split("___");
+    plant = parts[0]?.replace(/_/g, " ") || "Plant";
+    disease = parts[1]?.replace(/_/g, " ") || "Unknown Condition";
+  } else if (className.includes("__")) {
+    const parts = className.split("__");
+    plant = parts[0]?.replace(/_/g, " ") || "Plant";
+    disease = parts[1]?.replace(/_/g, " ") || "Unknown Condition";
+  } else {
+    const lowerName = className.toLowerCase();
+    if (lowerName === "bacteria") {
+      plant = "Plant";
+      disease = "Bacterial Infection";
+    } else if (lowerName === "fungi") {
+      plant = "Plant";
+      disease = "Fungal Infection";
+    } else if (lowerName === "virus") {
+      plant = "Plant";
+      disease = "Viral Infection";
+    } else if (lowerName === "pest") {
+      plant = "Plant";
+      disease = "Pest Infestation";
+    } else if (lowerName === "nematode") {
+      plant = "Plant";
+      disease = "Nematode Infection";
+    } else if (lowerName === "phytopthora" || lowerName === "phytophthora") {
+      plant = "Plant";
+      disease = "Phytophthora Rot";
+    } else if (lowerName === "healthy") {
+      plant = "Plant";
+      disease = "Healthy Condition";
+    } else if (lowerName === "disease not found") {
+      plant = "Plant";
+      disease = "Disease Not Found";
+    } else {
+      disease = className.replace(/_/g, " ");
+    }
+  }
+
   const isHealthy = disease.toLowerCase().includes("healthy");
   const key = className;
   
@@ -68,6 +107,207 @@ const getDiseaseDetails = (className) => {
   };
   
   const database = {
+    "Bacteria": {
+      name: "Bacterial Infection",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "Moderate to High",
+      description: "A bacterial pathogen has been detected on the leaves. Bacterial diseases often cause water-soaked spots, wilting, or rot, and can spread rapidly in wet, warm conditions.",
+      organic: [
+        "Apply organic copper-based bactericides or sulfur sprays.",
+        "Prune and destroy infected leaves during dry weather to prevent spread.",
+        "Use neem oil as a natural barrier against bacterial entry."
+      ],
+      chemical: [
+        "Apply streptomycin or copper hydroxide sprays if the infection is severe and spreading."
+      ],
+      prevention: [
+        "Avoid overhead irrigation to keep the leaves dry.",
+        "Sanitize pruning tools with isopropyl alcohol after every cut.",
+        "Provide proper crop spacing to improve air circulation."
+      ],
+      steps: [
+        "Carefully prune infected branches and leaves using sterilized tools.",
+        "Dispose of the pruned material immediately; do not compost it.",
+        "Apply an organic copper fungicide/bactericide spray to protect remaining foliage.",
+        "Avoid working in the field when the plants are wet."
+      ]
+    },
+    "Fungi": {
+      name: "Fungal Infection",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "Fungal spores have infected the plant foliage. Fungal diseases are characterized by spots, powdery coatings, or rust-like pustules, thriving in humid environments.",
+      organic: [
+        "Spray organic neem oil or potassium bicarbonate solutions.",
+        "Apply compost tea to the soil to introduce beneficial microbes.",
+        "Remove lower leaves to minimize soil splash inoculation."
+      ],
+      chemical: [
+        "Apply chlorothalonil, mancozeb, or triazole-based fungicides according to label instructions."
+      ],
+      prevention: [
+        "Practice crop rotation to prevent spore buildup in the soil.",
+        "Water at the base of the plant early in the morning.",
+        "Ensure adequate plant spacing for ventilation."
+      ],
+      steps: [
+        "Prune off heavily infected leaves showing spots or mold.",
+        "Apply organic neem oil spray on a dry evening to limit spore germination.",
+        "Rake and clear any fallen leaves and plant debris around the base.",
+        "Optimize plant spacing to allow sunlight to dry the leaves quickly."
+      ]
+    },
+    "Virus": {
+      name: "Viral Infection",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "High",
+      description: "A viral pathogen has been detected. Viruses cause leaf curling, yellowing patterns (mosaic), and stunting, and are typically transmitted by insect vectors like aphids or whiteflies.",
+      organic: [
+        "Control insect vectors (aphids, whiteflies) using organic insecticidal soap or neem oil.",
+        "Hang yellow sticky traps to catch flying insect vectors.",
+        "Immediately uproot and destroy severely infected plants to prevent transmission."
+      ],
+      chemical: [
+        "There are no chemical cures for plant viruses; focus on controlling vector insects with targeted insecticides."
+      ],
+      prevention: [
+        "Use certified disease-free seeds and virus-resistant varieties.",
+        "Keep fields clear of weeds that may host the virus or insect vectors.",
+        "Install physical barriers like row covers for young transplants."
+      ],
+      steps: [
+        "Inspect plants for sap-sucking pests and spray with neem oil if found.",
+        "Set up yellow sticky traps to monitor and catch whiteflies and aphids.",
+        "Uproot and bury/burn any plants showing severe stunting or mosaic patterns.",
+        "Clean hands and tools thoroughly after handling infected plants."
+      ]
+    },
+    "Pest": {
+      name: "Pest Infestation",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "Moderate",
+      description: "Active pest activity has been detected. Sap-sucking or leaf-chewing insects can damage leaves, stunt plant growth, and transmit plant diseases.",
+      organic: [
+        "Introduce natural predators like ladybugs, lacewings, or predatory mites.",
+        "Spray plants with organic neem oil or insecticidal soap.",
+        "Use physical barriers or row covers to protect young crops."
+      ],
+      chemical: [
+        "Apply targeted chemical insecticides only if the pest population exceeds economic thresholds."
+      ],
+      prevention: [
+        "Avoid excessive nitrogen fertilization, which produces lush foliage that attracts pests.",
+        "Promote biodiversity around fields to attract beneficial predator insects."
+      ],
+      steps: [
+        "Inspect leaf undersides and stems for insect clusters.",
+        "Apply organic neem oil spray on a calm evening.",
+        "Manually remove and discard larger pests (like caterpillars) if practical.",
+        "Monitor sticky traps weekly to track pest populations."
+      ]
+    },
+    "Nematode": {
+      name: "Nematode Infection",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "Moderate to High",
+      description: "Microscopic roundworms (nematodes) are affecting the plant's root or vascular system, causing nutrient deficiencies, wilting, and stunted growth.",
+      organic: [
+        "Apply organic soil amendments like neem cake or composted manure.",
+        "Grow cover crops like French marigolds, which release natural nematicidal compounds.",
+        "Solarize the soil using clear plastic during hot summer months."
+      ],
+      chemical: [
+        "Apply chemical nematicides under expert guidance if soil tests show high nematode counts."
+      ],
+      prevention: [
+        "Practice crop rotation with non-host crops.",
+        "Maintain good sanitation to prevent soil transfer between fields."
+      ],
+      steps: [
+        "Add composted organic matter to the soil to improve root vigor.",
+        "Plant marigolds around susceptible crops as a biological deterrent.",
+        "Solarize empty garden beds with plastic sheeting for 4-6 weeks.",
+        "Avoid moving soil from infested areas to clean fields."
+      ]
+    },
+    "Phytopthora": {
+      name: "Phytophthora Rot",
+      plant: "Plant",
+      isHealthy: false,
+      severity: "High to Critical",
+      description: "A soil-borne oomycete (water mold) causing root rot, crown rot, and leaf blight. It thrives in wet, poorly-drained soils and can cause rapid wilting and collapse.",
+      organic: [
+        "Improve soil drainage and avoid overwatering.",
+        "Apply biological controls containing Trichoderma or Bacillus species.",
+        "Remove and destroy infected plants and neighboring soil debris."
+      ],
+      chemical: [
+        "Apply fungicides containing metalaxyl, mefenoxam, or phosphorous acid to protect remaining plants."
+      ],
+      prevention: [
+        "Plant on raised beds to ensure good drainage.",
+        "Avoid planting in low-lying, water-logged areas.",
+        "Use clean, pathogen-free planting material."
+      ],
+      steps: [
+        "Uproot and destroy heavily wilted plants displaying stem base rot.",
+        "Improve water drainage around the plant roots immediately.",
+        "Apply bio-fungicides to the surrounding soil to protect healthy roots.",
+        "Transition to drip irrigation to keep soil moisture levels balanced."
+      ]
+    },
+    "Disease Not Found": {
+      name: "Disease Not Found",
+      plant: "Plant",
+      isHealthy: true,
+      severity: "None",
+      description: "The AI analysis did not detect any significant signs of disease on the leaf image. Keep monitoring your plants regularly.",
+      organic: [
+        "Continue regular weeding and soil conditioning.",
+        "Apply compost tea to boost overall plant vigor."
+      ],
+      chemical: [
+        "No chemical treatments needed."
+      ],
+      prevention: [
+        "Monitor crops weekly for early symptoms.",
+        "Practice balanced watering and crop nutrition."
+      ],
+      steps: [
+        "Continue routine field checks for potential pests.",
+        "Ensure consistent watering at the soil level.",
+        "Maintain a clean garden bed to prevent future infections.",
+        "Celebrate your crop health!"
+      ]
+    },
+    "Healthy": {
+      name: "Healthy Condition",
+      plant: "Plant",
+      isHealthy: true,
+      severity: "Healthy",
+      description: "Your plant leaf shows optimal health with vibrant coloration and no sign of pathogens or pests.",
+      organic: [
+        "Apply organic compost annually to maintain soil nutrients."
+      ],
+      chemical: [
+        "No chemical treatments required."
+      ],
+      prevention: [
+        "Practice crop rotation.",
+        "Water plants at the root level to keep foliage dry."
+      ],
+      steps: [
+        "Inspect leaf undersides weekly for pests.",
+        "Ensure balanced soil moisture.",
+        "Document crop conditions.",
+        "Keep up the great work!"
+      ]
+    },
     "Apple___Apple_scab": {
       name: "Apple Scab",
       plant: "Apple",
@@ -349,9 +589,22 @@ const getDiseaseDetails = (className) => {
     return database[key];
   }
   
+  // Case-insensitive exact lookup
   for (const dbKey in database) {
-    if (dbKey.toLowerCase().includes(disease.toLowerCase()) && dbKey.toLowerCase().includes(plant.toLowerCase())) {
+    if (dbKey.toLowerCase() === key.toLowerCase()) {
       return database[dbKey];
+    }
+  }
+
+  // Flexible partial matching
+  for (const dbKey in database) {
+    const dbKeyLower = dbKey.toLowerCase();
+    const diseaseLower = disease.toLowerCase();
+    const plantLower = plant.toLowerCase();
+    if (dbKeyLower.includes(diseaseLower)) {
+      if (plantLower === "plant" || dbKeyLower.includes(plantLower)) {
+        return database[dbKey];
+      }
     }
   }
   
@@ -615,18 +868,20 @@ const FileUploader = () => {
 
       // 3️⃣ Read ML response
       const data = await res.json();
-      const diseaseName = data.class_name || "Unknown Disease";
-      const confidence = data.confidence;
+      const diseaseName = data.class_name || data.disease || data.prediction || data.predicted_class || data.class || "Unknown Disease";
+      const confidence = data.confidence !== undefined ? data.confidence : 95.0;
 
-      // 4️⃣ Update UI
-      setDisease(`${diseaseName.replace(/___/g, " — ").replace(/_/g, " ")} (Confidence: ${confidence}%)`);
-      
       // Lookup recommendations guide
       const info = getDiseaseDetails(diseaseName);
+      let displayDisease = diseaseName.replace(/___/g, " — ").replace(/_/g, " ");
       if (info) {
         info.confidence = confidence;
         setDiseaseInfo(info);
+        displayDisease = info.name;
       }
+
+      // 4️⃣ Update UI
+      setDisease(`${displayDisease} (Confidence: ${confidence}%)`);
     } catch (error) {
       console.error("ML Prediction Error:", error);
       setDisease("Error");
