@@ -860,7 +860,7 @@ const FileUploader = () => {
       formData.append("file", file); // ⚠️ backend expects "file"
 
       // 2️. Call model API
-      const res = await fetch("https://dad-pumps-climb-insights.trycloudflare.com/predict", {
+      const res = await fetch("https://tee-robots-fcc-asus.trycloudflare.com/predict", {
         method: "POST",
         body: formData,
       });
