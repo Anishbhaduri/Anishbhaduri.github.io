@@ -1229,7 +1229,7 @@ const FileUploader = () => {
             onError={(e) => (e.currentTarget.style.display = "none")}
           />
           <div className="info-text">
-            <h2>🌱 A Greener Tomorrow</h2>
+            <h2> A Greener Tomorrow</h2>
             <p>
               At <strong>Plant Pulse</strong>, we’re on a mission to revolutionize agriculture
               through AI. Our goal is to help farmers detect plant diseases early —
@@ -1249,7 +1249,7 @@ const FileUploader = () => {
       {/* 🌍 Footer */}
       <footer className="footer-section">
         <p>
-          © {new Date().getFullYear()} <strong>Plant Pulse</strong> — Empowering Smart Farming with AI 🌱
+          © {new Date().getFullYear()} <strong>Plant Pulse</strong> — Empowering Smart Farming with Plant Pulse
         </p>
       </footer>
     </div>

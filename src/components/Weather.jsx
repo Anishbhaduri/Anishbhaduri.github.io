@@ -491,7 +491,7 @@ const Weather = () => {
               </div>
 
               <div className="agri-tips">
-                <strong>🤖 Farming Advisory:</strong>
+                <strong> Farming tips:</strong>
                 <p>{getAdvisory()}</p>
               </div>
             </div>
