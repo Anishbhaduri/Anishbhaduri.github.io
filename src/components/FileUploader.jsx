@@ -40,28 +40,28 @@ const getDiseaseDetails = (className) => {
   } else {
     const lowerName = className.toLowerCase();
     if (lowerName === "bacteria") {
-      plant = "Plant";
-      disease = "Bacterial Infection";
+      plant = "Potato";
+      disease = "Bacterial Wilt / Soft Rot (Blackleg)";
     } else if (lowerName === "fungi") {
-      plant = "Plant";
-      disease = "Fungal Infection";
+      plant = "Potato";
+      disease = "Fungal Blight / Fusarium";
     } else if (lowerName === "virus") {
-      plant = "Plant";
-      disease = "Viral Infection";
+      plant = "Potato";
+      disease = "Potato Virus Y / Leafroll Virus";
     } else if (lowerName === "pest") {
-      plant = "Plant";
-      disease = "Pest Infestation";
+      plant = "Potato";
+      disease = "Potato Beetle / Pest Infestation";
     } else if (lowerName === "nematode") {
-      plant = "Plant";
-      disease = "Nematode Infection";
+      plant = "Potato";
+      disease = "Potato Cyst / Root-Knot Nematode";
     } else if (lowerName === "phytopthora" || lowerName === "phytophthora") {
-      plant = "Plant";
-      disease = "Phytophthora Rot";
+      plant = "Potato";
+      disease = "Phytophthora Late Blight";
     } else if (lowerName === "healthy") {
-      plant = "Plant";
-      disease = "Healthy Condition";
+      plant = "Potato";
+      disease = "Healthy Potato Crop";
     } else if (lowerName === "disease not found") {
-      plant = "Plant";
+      plant = "Potato";
       disease = "Disease Not Found";
     } else {
       disease = className.replace(/_/g, " ");
@@ -108,162 +108,164 @@ const getDiseaseDetails = (className) => {
   
   const database = {
     "Bacteria": {
-      name: "Bacterial Infection",
-      plant: "Plant",
+      name: "Bacterial Wilt / Soft Rot (Blackleg)",
+      plant: "Potato",
       isHealthy: false,
-      severity: "Moderate to High",
-      description: "A bacterial pathogen has been detected on the leaves. Bacterial diseases often cause water-soaked spots, wilting, or rot, and can spread rapidly in wet, warm conditions.",
+      severity: "High to Critical",
+      description: "Bacterial infection caused by Ralstonia solanacearum or Pectobacterium species in potato crops. Symptoms include wilting leaf stems, black slimy stem rot near the soil line (blackleg), and rotting potato tubers.",
       organic: [
-        "Apply organic copper-based bactericides or sulfur sprays.",
-        "Prune and destroy infected leaves during dry weather to prevent spread.",
-        "Use neem oil as a natural barrier against bacterial entry."
+        "Immediately pull up and discard infected potato plants and their tubers.",
+        "Ensure strict sanitation of tools, boots, and machinery between potato rows.",
+        "Sow green manures like mustard before planting to naturally reduce soil bacteria."
       ],
       chemical: [
-        "Apply streptomycin or copper hydroxide sprays if the infection is severe and spreading."
+        "Apply copper hydroxide or organic copper bactericides preventively during wet, warm spells."
       ],
       prevention: [
-        "Avoid overhead irrigation to keep the leaves dry.",
-        "Sanitize pruning tools with isopropyl alcohol after every cut.",
-        "Provide proper crop spacing to improve air circulation."
+        "Only plant certified disease-free seed potatoes.",
+        "Grow potatoes in well-drained soil; bacteria thrive in saturated roots.",
+        "Practice a 4-year crop rotation without nightshade family crops (tomatoes, peppers, eggplants)."
       ],
       steps: [
-        "Carefully prune infected branches and leaves using sterilized tools.",
-        "Dispose of the pruned material immediately; do not compost it.",
-        "Apply an organic copper fungicide/bactericide spray to protect remaining foliage.",
-        "Avoid working in the field when the plants are wet."
+        "Inspect stems near the soil line for dark, water-soaked, slimy lesions.",
+        "Carefully dig out infected plants, including all roots and seed tubers, and dispose of them.",
+        "Sprinkle agricultural lime or charcoal dust in the planting hole to suppress soil pathogens.",
+        "Use drip irrigation to prevent water pooling around potato crowns."
       ]
     },
     "Fungi": {
-      name: "Fungal Infection",
-      plant: "Plant",
+      name: "Fungal Blight / Fusarium",
+      plant: "Potato",
       isHealthy: false,
-      severity: "Moderate",
-      description: "Fungal spores have infected the plant foliage. Fungal diseases are characterized by spots, powdery coatings, or rust-like pustules, thriving in humid environments.",
+      severity: "High",
+      description: "Fungal pathogens affecting potato foliage and tubers. Causes target-like brown spots on leaves (Early Blight), powdery scab, or white fungal growth under leaves, reducing tuber size and storage life.",
       organic: [
-        "Spray organic neem oil or potassium bicarbonate solutions.",
-        "Apply compost tea to the soil to introduce beneficial microbes.",
-        "Remove lower leaves to minimize soil splash inoculation."
+        "Apply a 3-inch layer of clean straw mulch around the potato plant bases.",
+        "Spray organic copper fungicides or sulfur sprays at 7-10 day intervals.",
+        "Spray diluted milk or baking soda solution to suppress foliar fungal growth."
       ],
       chemical: [
-        "Apply chlorothalonil, mancozeb, or triazole-based fungicides according to label instructions."
+        "Apply chlorothalonil or mancozeb protective sprays when wet weather is forecast."
       ],
       prevention: [
-        "Practice crop rotation to prevent spore buildup in the soil.",
-        "Water at the base of the plant early in the morning.",
-        "Ensure adequate plant spacing for ventilation."
+        "Ensure wide spacing (at least 12 inches) between potato plants for wind aeration.",
+        "Water potatoes early in the morning at the soil level, keeping the leaves dry.",
+        "Harvest potatoes only when vines are fully dead to ensure skin set, protecting against spores."
       ],
       steps: [
-        "Prune off heavily infected leaves showing spots or mold.",
-        "Apply organic neem oil spray on a dry evening to limit spore germination.",
-        "Rake and clear any fallen leaves and plant debris around the base.",
-        "Optimize plant spacing to allow sunlight to dry the leaves quickly."
+        "Prune off the lowest 3-4 leaves that touch the soil to prevent spore splash.",
+        "Spray organic copper solution thoroughly on both sides of the potato leaves.",
+        "Remove and burn/bury all potato plant residues immediately after harvest.",
+        "Store harvested tubers in a dry, well-ventilated dark room to prevent rot."
       ]
     },
     "Virus": {
-      name: "Viral Infection",
-      plant: "Plant",
+      name: "Potato Virus Y / Leafroll Virus",
+      plant: "Potato",
       isHealthy: false,
       severity: "High",
-      description: "A viral pathogen has been detected. Viruses cause leaf curling, yellowing patterns (mosaic), and stunting, and are typically transmitted by insect vectors like aphids or whiteflies.",
+      description: "Viral infections transmitted by aphids. Causes leaf curling (leafroll), yellow mosaic mottling, dwarfing of shoots, and internal brown necrosis spots in the potato tubers.",
       organic: [
-        "Control insect vectors (aphids, whiteflies) using organic insecticidal soap or neem oil.",
-        "Hang yellow sticky traps to catch flying insect vectors.",
-        "Immediately uproot and destroy severely infected plants to prevent transmission."
+        "Spray organic insecticidal soap or neem oil targeting aphids on leaf undersides.",
+        "Hang yellow sticky traps in the potato patch to capture and monitor aphid vectors.",
+        "Rogue (uproot and destroy) any virus-infected stunted potato plants immediately."
       ],
       chemical: [
-        "There are no chemical cures for plant viruses; focus on controlling vector insects with targeted insecticides."
+        "No chemical cures exist for viruses. Apply systemic aphicides to suppress insect vector populations."
       ],
       prevention: [
-        "Use certified disease-free seeds and virus-resistant varieties.",
-        "Keep fields clear of weeds that may host the virus or insect vectors.",
-        "Install physical barriers like row covers for young transplants."
+        "Plant only certified virus-free seed potatoes.",
+        "Grow potatoes away from other nightshade crops and wild weeds.",
+        "Select virus-resistant potato varieties."
       ],
       steps: [
-        "Inspect plants for sap-sucking pests and spray with neem oil if found.",
-        "Set up yellow sticky traps to monitor and catch whiteflies and aphids.",
-        "Uproot and bury/burn any plants showing severe stunting or mosaic patterns.",
-        "Clean hands and tools thoroughly after handling infected plants."
+        "Monitor potato plants for severe leaf rolling, dwarfed growth, or mosaic patterns.",
+        "Uproot and destroy the infected plants and their tubers.",
+        "Spray aphid infestations with organic insecticidal soap.",
+        "Ensure hands and tools are clean to prevent mechanical virus transmission."
       ]
     },
     "Pest": {
-      name: "Pest Infestation",
-      plant: "Plant",
+      name: "Potato Beetle / Pest Infestation",
+      plant: "Potato",
       isHealthy: false,
-      severity: "Moderate",
-      description: "Active pest activity has been detected. Sap-sucking or leaf-chewing insects can damage leaves, stunt plant growth, and transmit plant diseases.",
+      severity: "Moderate to High",
+      description: "Infestation of potato foliage or tubers by pests like the Colorado Potato Beetle, leafhoppers, or wireworms. Can lead to rapid defoliation and chew holes in tubers.",
       organic: [
-        "Introduce natural predators like ladybugs, lacewings, or predatory mites.",
-        "Spray plants with organic neem oil or insecticidal soap.",
-        "Use physical barriers or row covers to protect young crops."
+        "Hand-pick adult beetles and orange egg clusters from leaf undersides and drop them in soapy water.",
+        "Spray organic neem oil or Spinosad-based biological sprays targeting young larvae.",
+        "Apply diatomaceous earth around the base of potato stems to deter crawling insects."
       ],
       chemical: [
-        "Apply targeted chemical insecticides only if the pest population exceeds economic thresholds."
+        "Apply pyrethroid-based insecticides if defoliation exceeds 20% during critical leaf development."
       ],
       prevention: [
-        "Avoid excessive nitrogen fertilization, which produces lush foliage that attracts pests.",
-        "Promote biodiversity around fields to attract beneficial predator insects."
+        "Cover young potato plants with lightweight floating row covers to block beetles.",
+        "Encourage insect predators like ladybugs, hoverflies, and birds.",
+        "Practice crop rotation to delay beetles emerging from winter hibernation in the soil."
       ],
       steps: [
-        "Inspect leaf undersides and stems for insect clusters.",
-        "Apply organic neem oil spray on a calm evening.",
-        "Manually remove and discard larger pests (like caterpillars) if practical.",
-        "Monitor sticky traps weekly to track pest populations."
+        "Check leaf undersides for clusters of bright yellow-orange beetle eggs.",
+        "Hand-pick larvae and beetles daily into a bucket of soapy water.",
+        "Spray Spinosad solution on leaves if young, soft-bodied larvae are present.",
+        "Hill soil up properly to protect underground tubers from tuber moth larvae."
       ]
     },
     "Nematode": {
-      name: "Nematode Infection",
-      plant: "Plant",
+      name: "Potato Cyst / Root-Knot Nematode",
+      plant: "Potato",
       isHealthy: false,
       severity: "Moderate to High",
-      description: "Microscopic roundworms (nematodes) are affecting the plant's root or vascular system, causing nutrient deficiencies, wilting, and stunted growth.",
+      description: "Microscopic soil roundworms targeting potato roots. Symptoms include yellowing, wilting, stunted plants, and small pimple-like swellings (galls) or tiny white/yellow cysts on harvested potato roots and tubers.",
       organic: [
-        "Apply organic soil amendments like neem cake or composted manure.",
-        "Grow cover crops like French marigolds, which release natural nematicidal compounds.",
-        "Solarize the soil using clear plastic during hot summer months."
+        "Grow French marigolds (Tagetes patula) as a cover crop; their roots kill nematodes.",
+        "Apply neem cake, crab meal, or chitin-rich organic fertilizer to the soil.",
+        "Solarize the potato bed using transparent plastic sheets during the hot summer."
       ],
       chemical: [
-        "Apply chemical nematicides under expert guidance if soil tests show high nematode counts."
+        "Soil application of biological nematicides containing Paecilomyces lilacinus."
       ],
       prevention: [
-        "Practice crop rotation with non-host crops.",
-        "Maintain good sanitation to prevent soil transfer between fields."
+        "Practice strict crop rotation: avoid planting potatoes in the same spot for at least 4 years.",
+        "Use certified nematode-resistant potato cultivars.",
+        "Wash soil off all garden tools and tractor tires to prevent spreading cysts."
       ],
       steps: [
-        "Add composted organic matter to the soil to improve root vigor.",
-        "Plant marigolds around susceptible crops as a biological deterrent.",
-        "Solarize empty garden beds with plastic sheeting for 4-6 weeks.",
-        "Avoid moving soil from infested areas to clean fields."
+        "Dig up a suspected stunted plant and check the roots for tiny cream-colored cysts.",
+        "Incorporate generous amounts of compost and neem cake into the soil to boost micro-predators.",
+        "Sow marigolds thickly in the infested bed next season and till them into the soil.",
+        "Avoid moving soil or plants from infested beds to clean areas of the garden."
       ]
     },
     "Phytopthora": {
-      name: "Phytophthora Rot",
-      plant: "Plant",
+      name: "Phytophthora Late Blight",
+      plant: "Potato",
       isHealthy: false,
-      severity: "High to Critical",
-      description: "A soil-borne oomycete (water mold) causing root rot, crown rot, and leaf blight. It thrives in wet, poorly-drained soils and can cause rapid wilting and collapse.",
+      severity: "Critical",
+      description: "Late Blight caused by Phytophthora infestans. Appears as dark, water-soaked, irregular leaf patches with white mildew on undersides. Spores wash into soil, rotting the tubers into a smelly, brown pulp.",
       organic: [
-        "Improve soil drainage and avoid overwatering.",
-        "Apply biological controls containing Trichoderma or Bacillus species.",
-        "Remove and destroy infected plants and neighboring soil debris."
+        "Immediately pull up, bag, and destroy the entire infected potato plant. Do not compost.",
+        "Apply preventative copper-based organic sprays to all neighboring potato and tomato plants.",
+        "Cut potato vines to ground level if harvest is near to protect tubers in the soil."
       ],
       chemical: [
-        "Apply fungicides containing metalaxyl, mefenoxam, or phosphorous acid to protect remaining plants."
+        "Spray systemic fungicides like metalaxyl or chlorothalonil to suppress spread in surrounding potato fields."
       ],
       prevention: [
-        "Plant on raised beds to ensure good drainage.",
-        "Avoid planting in low-lying, water-logged areas.",
-        "Use clean, pathogen-free planting material."
+        "Plant only certified blight-free seed potatoes.",
+        "Select blight-resistant varieties (e.g., Sarpo Mira, Defender).",
+        "Avoid overhead watering and ensure low humidity around the crop canopy."
       ],
       steps: [
-        "Uproot and destroy heavily wilted plants displaying stem base rot.",
-        "Improve water drainage around the plant roots immediately.",
-        "Apply bio-fungicides to the surrounding soil to protect healthy roots.",
-        "Transition to drip irrigation to keep soil moisture levels balanced."
+        "Inspect plants daily during cool, wet, foggy weather for dark leaf spots.",
+        "Uproot infected potato plants completely, put them in plastic bags, and dispose of them.",
+        "Apply organic copper fungicide to surrounding healthy potato vines.",
+        "Wait 14 days after cutting infected vines before digging up tubers to prevent spore contamination."
       ]
     },
     "Disease Not Found": {
       name: "Disease Not Found",
-      plant: "Plant",
+      plant: "Potato",
       isHealthy: true,
       severity: "None",
       description: "The AI analysis did not detect any significant signs of disease on the leaf image. Keep monitoring your plants regularly.",
@@ -286,26 +288,27 @@ const getDiseaseDetails = (className) => {
       ]
     },
     "Healthy": {
-      name: "Healthy Condition",
-      plant: "Plant",
+      name: "Healthy Potato Crop",
+      plant: "Potato",
       isHealthy: true,
       severity: "Healthy",
-      description: "Your plant leaf shows optimal health with vibrant coloration and no sign of pathogens or pests.",
+      description: "Your potato plant exhibits excellent leaf vigor, sturdy stems, and no signs of bacterial, fungal, or viral pathogens. Keep up the good work!",
       organic: [
-        "Apply organic compost annually to maintain soil nutrients."
+        "Apply compost tea or liquid seaweed extract to sustain plant vigor.",
+        "Hill up soil or mulch around potato stems to cover developing tubers from sunlight."
       ],
       chemical: [
         "No chemical treatments required."
       ],
       prevention: [
-        "Practice crop rotation.",
-        "Water plants at the root level to keep foliage dry."
+        "Keep hilling potatoes regularly to prevent tuber greening.",
+        "Monitor leaf undersides weekly for pests like Colorado Potato Beetles."
       ],
       steps: [
-        "Inspect leaf undersides weekly for pests.",
-        "Ensure balanced soil moisture.",
-        "Document crop conditions.",
-        "Keep up the great work!"
+        "Hill up the potato plants with soil or straw when they reach 8 inches tall.",
+        "Maintain consistent soil moisture (about 1 inch of water per week).",
+        "Examine the crop weekly for signs of chewing insects or leaf spots.",
+        "Stop watering once the potato vines begin to turn yellow and die back."
       ]
     },
     "Apple___Apple_scab": {
@@ -1154,14 +1157,14 @@ const FileUploader = () => {
                 <Info size={18} style={{ marginRight: 8 }} /> About this Condition
               </h3>
               <p className="section-body">{diseaseInfo.description}</p>
-            </div>
-
+            </div>  
+            
             {/* Beginner Farmer Step-by-Step Cure Steps */}
             <div className="result-section step-guide-section">
               <h3 className="section-title">
-                <Sparkles size={18} style={{ marginRight: 8 }} /> Beginner Farmer Cure Steps
+                <Sparkles size={18} style={{ marginRight: 8 }} /> Steps for beginner farmer
               </h3>
-              <p className="section-subtitle">Follow these 4 simple steps to treat and nurse your crop back to health:</p>
+              <p className="section-subtitle">Follow these simple steps to treat and nurse your crop back to health:</p>
               <div className="steps-container">
                 {diseaseInfo.steps.map((step, idx) => (
                   <div key={idx} className="step-card-item">
